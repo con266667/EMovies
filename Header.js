@@ -14,7 +14,6 @@ import { useSelector } from 'react-redux'
   
 
 const Header = (props) => {
-  const isDarkMode = useColorScheme() === 'dark';
   const state = useSelector(state => state)
   const dispatch = useDispatch()
   const pushPage = page => dispatch({ type: 'CHANGE_PAGE', payload: page })

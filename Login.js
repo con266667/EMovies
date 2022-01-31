@@ -67,8 +67,7 @@ import axios from 'axios';
             )}
            
             <TouchableOpacity style={styles.option}
-                onPress={() => {loginDetails()}}
-            >
+                onPress={() => {loginDetails()}} >
                 <Text style={styles.optionText}>Add User</Text>
             </TouchableOpacity>
         </View>
@@ -80,7 +79,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-       flexDirection: 'row',
+        flexDirection: 'row',
+        backgroundColor: 'rgb(48, 48, 48)',
     },
     option: {
         backgroundColor: '#fff',

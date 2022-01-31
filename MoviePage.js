@@ -12,14 +12,11 @@ import { Navigation } from 'react-native-navigation';
   
 
 const MoviePage = () => {
-  const isDarkMode = useColorScheme() === 'dark';
   const state = useState('')
   const [button, setButton] = state;
 
   return (
     <View>
-    {console.log(button)}
-
         <Image
         style={styles.backgroundImage}
         source={{

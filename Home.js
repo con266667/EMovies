@@ -11,8 +11,8 @@ import ReactNative, {
     View,
     Pressable,
     Dimensions,
+    ActivityIndicator,
   } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Navigation } from 'react-native-navigation';
 
 import Header from './Header';
@@ -26,7 +26,6 @@ import { getMoviesWatched } from './Trakt';
 
 const Home = (props) => {
   const state = useSelector(state => state)
-  const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const [scrollview, setScrollview] = useState(null);
   const [itemLocations, setItemLocations] = useState({});
@@ -36,6 +35,7 @@ const Home = (props) => {
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
   const [url, setUrl] = useState('');
+  const [loadingMovie, setLoadingMovie] = useState('');
 
   const [lists, setLists] = useState([]);
 
@@ -77,7 +77,7 @@ const Home = (props) => {
   const checkForLink = (html) => {
     const link = scrapeView(html);
     if (link != '') {
-      console.log(link);
+      setLoadingMovie('')
       props.openVideo(link);
     }
   }
@@ -137,25 +137,31 @@ const Home = (props) => {
                 height={150}>
                 {
                   list.items.map((item) => 
-                    <TouchableOpacity
-                      key={item.title}
-                      hasTVPreferredFocus={list.items[0] === item}
-                      activeOpacity={.5}
-                      onFocus={() => {
-                        setSelected(item);
-                        if (itemLocations[list.title] !== undefined) {
-                          scrollview.scrollTo({ x: 0, y: itemLocations[list.title].y, animated: true });
-                        }
-                      }} 
-                      onPress={() => {
-                        setUrl(item.vhlink);
-                      }}>
-                      <Image
-                      style={styles.smallCard}
-                      source={{
-                        uri: item.image,
-                      }}></Image>
-                    </TouchableOpacity>
+                    <View key={item.title}>
+                      <TouchableOpacity
+                        hasTVPreferredFocus={list.items[0] === item}
+                        activeOpacity={.5}
+                        onFocus={() => {
+                          setSelected(item);
+                          if (itemLocations[list.title] !== undefined) {
+                            scrollview.scrollTo({ x: 0, y: itemLocations[list.title].y, animated: true });
+                          }
+                        }} 
+                        onPress={() => {
+                          setLoadingMovie(item.title)
+                          setUrl(item.vhlink);
+                        }}>
+                        <Image
+                        style={styles.smallCard}
+                        source={{
+                          uri: item.image,
+                        }}></Image>
+                      </TouchableOpacity>
+                      <ActivityIndicator 
+                        style={styles.loadingSmallCard} 
+                        size={80} color={'#fff'} 
+                        opacity={loadingMovie === item.title ? 1 : 0} />
+                    </View>
                   )
                 } 
               </ScrollView>
@@ -239,6 +245,10 @@ const styles = StyleSheet.create({
     webview: {
       opacity: 0,
       position: 'absolute',
+    },
+    loadingSmallCard: {
+      marginTop: -104,
+      marginRight: 33,
     }
   });
 

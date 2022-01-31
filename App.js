@@ -78,7 +78,8 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        backgroundColor: 'rgb(48,48,48)',
     },
     sidebar: {
         justifyContent: 'center',
