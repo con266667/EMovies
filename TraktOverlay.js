@@ -2,38 +2,72 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Navigation } from "react-native-navigation";
-import { addToken } from "./AuthActions";
+import { useDispatch } from "react-redux";
 
 function TraktOverlay({ componentId, userCode, interval, deviceCode }) {
-  const dismiss = () => {
-      Navigation.dismissOverlay(componentId);
-  };
+    const [hasStartedInerval, setHasStartedInerval] = React.useState(false);
 
-  var tries = 0;
+    const dismiss = () => {
+        Navigation.dismissOverlay(componentId);
+    };
+
+    const dispatch = useDispatch();
+    const addUserData = data => dispatch({ type: 'ADD_USER_DATA', payload: data });
+
+    var tries = 0;
+
+    const client_id = '?client_id=bd40bc484afbea19226a29277101fe86a25269479697e2e959cb3a3d25a8f819'
+    const client_id_and_secret = client_id + '&client_secret=9e11df0eeab1ec88c4b33bfb8b6d3d223d432de2f7b7ffab8490a0e018ddedb8&';
 
     useEffect(() => {
-        const poll = setInterval(() => {
-            if (tries > 120) {
-                poll.clearInterval();
-            }
-            const response = axios.post(
-                'https://api.trakt.tv/oauth/device/token?client_id=bd40bc484afbea19226a29277101fe86a25269479697e2e959cb3a3d25a8f819&client_secret=9e11df0eeab1ec88c4b33bfb8b6d3d223d432de2f7b7ffab8490a0e018ddedb8&code=' + deviceCode,
-            );
-            response.then((res) => {
-                if (res.status === 200) {
-                    token = res.data['access_token'];
-                    console.log(token);
-                    addToken(token);
+        if (!hasStartedInerval) {
+            setHasStartedInerval(true);
+            const poll = setInterval(() => {
+                if (tries > 120) {
                     clearInterval(poll);
-                    dismiss();
                 }
-            }).catch((err) => {
-                // console.log(err)
-                console.log("Not ready yet");
-            });
-            tries++;
-        }, interval * 1000);
+
+                const response = axios.post(
+                    'https://api.trakt.tv/oauth/device/token' + client_id_and_secret +'code=' + deviceCode,
+                );
+
+                response.then((res) => {
+                    if (res.status === 200) {
+                        token = res.data['access_token'];
+                        console.log(token);
+                        // addToken(token);
+                        getUserInfoFromToken(token);
+                        clearInterval(poll);
+                        dismiss();
+                    }
+                }).catch((err) => {
+                    console.log("Not ready yet");
+                });
+                tries++;
+            }, interval * 1000);
+        }
     });
+
+    getUserInfoFromToken = (token) => {
+        const config = {
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                'trakt-api-key': 'bd40bc484afbea19226a29277101fe86a25269479697e2e959cb3a3d25a8f819',
+                'Content-Type': 'application/json',
+            }
+        };
+        const response = axios.get('https://api.trakt.tv/users/settings' + client_id, config);
+        response.then((res) => {
+            const username = res.data['user']['username'];
+            const uuid = res.data['user']['ids']['uuid'];
+
+            addUserData({
+                username: username,
+                uuid: uuid,
+                token: token
+            });
+        });
+    }
 
   return (
     <View style={styles.root}>

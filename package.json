@@ -7,10 +7,10 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint .",
-    "postinstall": "node_modules/.bin/rn-nodeify --install crypto,fs,https,http,events,zlib,child_process,stream --hack"
+    "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.17",
     "@tradle/react-native-http": "^2.0.1",
     "assert": "^2.0.0",
     "axios": "^0.25.0",
@@ -30,13 +30,17 @@
     "react-native": "npm:react-native-tvos@0.66.3-0",
     "react-native-childprocess": "^0.1.4",
     "react-native-crypto": "^2.2.0",
+    "react-native-image-filter-kit": "^0.8.0",
     "react-native-level-fs": "^3.0.1",
     "react-native-navigation": "^7.24.3-hotfix.1",
     "react-native-randombytes": "^3.6.1",
+    "react-native-svg": "^12.1.1",
+    "react-native-video": "^5.2.0",
     "react-native-webview": "^11.17.1",
     "react-redux": "^7.2.6",
     "readable-stream": "^1.0.33",
     "redux": "^4.1.2",
+    "redux-persist": "^6.0.0",
     "rn-nodeify": "https://github.com/con266667/rn-nodeify.git",
     "selenium-webdriver": "^4.1.1",
     "stream": "^0.0.2",
@@ -53,6 +57,7 @@
     "eslint": "7.14.0",
     "jest": "26.6.3",
     "metro-react-native-babel-preset": "0.66.2",
+    "react-native-svg-transformer": "^1.0.0",
     "react-test-renderer": "17.0.2"
   },
   "jest": {

@@ -6,62 +6,62 @@
  * @flow strict-local
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider, useSelector } from 'react-redux';
-import { createStore } from 'redux';
+import { combineReducers, createStore } from 'redux';
 import PageReducer from './PageReducer';
 import { Navigation } from 'react-native-navigation';
 import Header from './Header';
 import Home from './Home';
 import MoviePage from './MoviePage';
 import HomeView from './HomeView';
-import { Dimensions, SafeAreaView, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
+import { Dimensions, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import WebView from 'react-native-webview';
 import JSSoup from 'jssoup'; 
+import AuthReducer from './AuthReducer';
+import persistStore from 'redux-persist/es/persistStore';
+import { PersistGate } from 'redux-persist/integration/react';
+import Search from './assets/icons/search.svg';
+import TV from './assets/icons/tv.svg';
+import Video from './assets/icons/video.svg';
+import HomeIcon from './assets/icons/home.svg';
 
 
-
-store = createStore(PageReducer);
 
 const backgroundStyle = {
     backgroundColor: Colors.darker,
 };
 
-const App = () => {
-    const jsCodeV2 = "setTimeout(function(){window.location.href = document.getElementsByTagName('iframe')[0].src;}, 800);setTimeout(function(){window.location.href = document.getElementsByTagName('iframe')[0].src;}, 1600);setTimeout(function(){window.ReactNativeWebView.postMessage(document.documentElement.innerHTML)}, 2400);";
-
-    scrapeViewV2 = async (html) => {
-        const soup = new JSSoup(html);
-        const link = soup.find('video')['attrs']['src'];
-        console.log(link);
+const App = (props) => {
+    const openVideo = (url) => {
+        console.log(url);
+        // console.log(Navigation.)
+        Navigation.push(props.componentId, {
+            component: {
+                name: 'Player',
+                options: {
+                    topBar: {
+                        visible: false,
+                    }
+                },
+                passProps: {
+                    uri: url
+                }
+            },
+        })
     }
 
     return (
-        <Provider store={store}>
-            {/* <SafeAreaView style={backgroundStyle}> */}
-                <WebView
-                    style={styles.webview}
-                    originWhitelist={['*']}
-                    javaScriptEnabledAndroid={true}
-                    userAgent={'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'}
-                    useWebKit={true}
-                    incognito={true}
-                    javaScriptEnabled={true}
-                    injectedJavaScript={jsCodeV2}
-                    source={{uri: 'https://vhmovies.com/movie/the-mule-2018-2Xbh/watching.html?ep=0'}}
-                    onMessage={event => scrapeViewV2(event.nativeEvent.data)}
-                />
-                {/* <ScrollView
-                contentInsetAdjustmentBehavior="automatic"
-                style={backgroundStyle, styles.wrap}>
-                <View height={15}></View>
-                <Header />
-                <View height={25}></View>
-                <HomeView />
-                </ScrollView> */}
-            {/* </SafeAreaView> */}
-        </Provider>
+        <View style={styles.content}>
+            <View style={styles.sidebar}>
+                <HomeIcon path={'#666'} style={styles.icon} />
+                <TV path={'#666'} style={styles.icon} />
+                <Video path={'#666'} style={styles.icon} />
+                <Search path={'#666'} style={styles.icon} />
+            </View>
+            <Home width={Dimensions.get('window').width - 68} openVideo={openVideo}/>
+        </View>
     );
 };
 
@@ -69,12 +69,30 @@ const App = () => {
 const styles = StyleSheet.create({
     wrap: {
         paddingHorizontal: 60,
-        paddingVertical: 20,
+        paddingVertical: 60,
     },
     webview: {
-        marginTop: 20, 
+        opacity: 0,
         width: Dimensions.get('window').width, 
         height: Dimensions.get('window').height
+    },
+    content: {
+        flex: 1,
+        flexDirection: 'row'
+    },
+    sidebar: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+        width: 60,
+    },
+    sidebarItem: {
+        fontFamily: 'Inter-SemiBold',
+        color: '#fff',
+        marginVertical: 10,
+    },
+    icon: {
+        marginVertical: 20,
     }
 });
 

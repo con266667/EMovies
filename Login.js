@@ -7,18 +7,20 @@
  */
 
  import React, { useEffect } from 'react';
- import { Provider, useSelector } from 'react-redux';
+ import { Provider, useDispatch, useSelector } from 'react-redux';
  import { createStore } from 'redux';
  import PageReducer from './PageReducer';
- import { Navigation } from 'react-native-navigation';
+ import { Navigation, NavigationComponent } from 'react-native-navigation';
  import Header from './Header';
  import Home from './Home';
  import MoviePage from './MoviePage';
  import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
- import userLoginDetails from './Trakt';
+ import userLoginDetails, { getMoviesWatched } from './Trakt';
 import axios from 'axios';
  
  const Login = () => {
+    const state = useSelector(state => state);
+    const dispatch = useDispatch();
 
     const loginDetails = async () => {
         try {
@@ -43,9 +45,28 @@ import axios from 'axios';
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.option}>
-                <Text style={styles.optionText}>Connor</Text>
-            </TouchableOpacity>
+            {state.auth.auth.users.map((user) => 
+                <TouchableOpacity 
+                    style={styles.option} 
+                    key={user.uuid}
+                    onPress={() => {
+                        getMoviesWatched(user, dispatch);
+                        dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
+                        Navigation.push('Login', {
+                            component: {
+                            name: 'Main',
+                            options: {
+                                topBar: {
+                                    visible: false,
+                                }
+                            }
+                            },
+                        })}
+                      }>
+                    <Text style={styles.optionText}>{user.username}</Text>
+                </TouchableOpacity>
+            )}
+           
             <TouchableOpacity style={styles.option}
                 onPress={() => {loginDetails()}}
             >

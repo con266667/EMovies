@@ -1,42 +1,37 @@
-// const puppetteer = require('puppeteer');
-
-// getTitle = async (title) => {
-//     const browser = await puppetteer.launch({
-//         headless: true,
-//     });
-    
-//     const page = await browser.newPage();
-    
-//     await page.setRequstInterception(true);
-    
-//     await page.goto('https://vhmovies.com/search/?keyword=' + title)
-// }
-
-
-// import jsdom from 'jsdom';
-// const { JSDOM } = jsdom;
-
 import JSSoup from 'jssoup'; 
 
-getTitle = async () => {
-    const response = await fetch('https://hdmoviesb.com/video/the-ice-age-adventures-of-buck-wild-hd-720-347181')
-    const html = await response.text()
-    var soup = new JSSoup(html);
-    console.log(html)
-    var iframe = soup.find('iframe')['attrs']['src'];
-    console.log(iframe)
-    // nightmare.goto('https://hdmoviesb.com/' + iframe)
+export const jsCode = "setTimeout(function(){window.location.href = document.getElementsByTagName('iframe')[0].src;}, 5); setTimeout(() => { window.ReactNativeWebView.postMessage( document.documentElement.innerHTML ); }, 1000);";
+        
+export const scrapeView = (html) => {
+    const soup = new JSSoup(html);
 
-    // const subresponse = await fetch('https://hdmoviesb.com/' + iframe)
-    // const subhtml = await subresponse.text()
-    // var subsoup = new JSSoup(subhtml);
-    // console.log(subhtml)
-    // var subiframe = subsoup.find('iframe');
-    // console.log(subiframe)
-    // console.log(dom.window.document.querySelector('a').href)
+    console.log("Loading...");
+    
+    if (soup.find('video') != null) {
+        const link = soup.find('video')['attrs']['src'];
+        return link;
+    }
+    return '';
 }
 
-// getTitle()
-
-// getTitle('The Godfather');
-export default getTitle
+export const getVHLink = async (title, year) => {
+    const response = await fetch("https://vhmovies.com/search?keyword=" + title);
+    const html = await response.text();
+    const soup = new JSSoup(html);
+    const aTags = soup.findAll('a', {'class': 'halim-thumb'});
+    var finalATag;
+    aTags.forEach(aTag => {
+        if (
+            aTag['descendants'].filter(x => x['name'] == 'p').filter(x => x['nextElement']['_text'] == year.toString()).length > 0
+        ) {
+            finalATag = aTag;
+        }
+    });
+    var link;
+    if (finalATag == null) {
+        link = aTags[0]['attrs']['href'];
+    } else {
+        link = finalATag['attrs']['href'];
+    }
+    return 'https://vhmovies.com' + link + '/watching.html?ep=0';
+}
