@@ -17,35 +17,41 @@ import { Navigation } from 'react-native-navigation';
 
 import Header from './Header';
 import { DarkenBlend, DstOverComposition, EllipticalGradient, Emboss, HardLightBlend, ImageBackgroundPlaceholder, RadialGradient, ScreenBlend, SoftLightBlend, SrcOverComposition } from 'react-native-image-filter-kit';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getImages } from './tmdb';
 import { getVHLink, jsCode, scrapeView } from './scrape';
 import WebView from 'react-native-webview';
+import { getMoviesWatched } from './Trakt';
   
 
 const Home = (props) => {
   const state = useSelector(state => state)
   const isDarkMode = useColorScheme() === 'dark';
+  const dispatch = useDispatch();
   const [scrollview, setScrollview] = useState(null);
   const [itemLocations, setItemLocations] = useState({});
   const [selected, setSelected] = useState({
-    title: 'Spider',
-    year: '2020',
-    image: 'https://wallpaperbat.com/img/280720-top-movie-wallpaper.jpg'
+    title: 'Loading...',
+    year: '',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
   const [url, setUrl] = useState('');
 
   const [lists, setLists] = useState([]);
 
-  const currentUser = state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
+  const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
   useEffect(() => {
-    if (lists.map(list => list.title).indexOf('Continue Watching') === -1) {
+    const setup = async () => {
+      if (currentUser().moviesWatched === undefined) {
+        await getMoviesWatched(currentUser(), dispatch);
+      }
+
       const continueWatchingItems = [];
-      var moviesWatched = currentUser.moviesWatched.map(movie => movie.movie);
+      var moviesWatched = currentUser().moviesWatched.map(movie => movie.movie);
       moviesWatched = moviesWatched.filter((value, index, self) => self.findIndex(movie => movie.title === value.title) === index)
 
-      moviesWatched.forEach(async movie => {
+      for (const movie of moviesWatched) {
         const _images = await getImages(movie.ids.tmdb);
         const _link = await getVHLink(movie.title, movie.year);
         const background = 'https://image.tmdb.org/t/p/original/' + _images['backdrops'][0].file_path;
@@ -55,14 +61,18 @@ const Home = (props) => {
           image: background,
           vhlink: _link
         });
-      });
+      }
 
       setLists(_ => [{
         title: 'Continue Watching',
         items: continueWatchingItems
       }]);
     }
-  }, [currentUser.moviesWatched, setLists]);
+
+    if (lists.map(list => list.title).indexOf('Continue Watching') === -1) {
+     setup();
+    }
+  }, [currentUser().moviesWatched, setLists]);
 
   const checkForLink = (html) => {
     const link = scrapeView(html);
