@@ -57,12 +57,12 @@ const Home = (props) => {
         });
       });
 
-      setLists([{
+      setLists(_ => [{
         title: 'Continue Watching',
         items: continueWatchingItems
       }]);
     }
-  }, [currentUser.moviesWatched, lists]);
+  }, [currentUser.moviesWatched, setLists]);
 
   const checkForLink = (html) => {
     const link = scrapeView(html);
