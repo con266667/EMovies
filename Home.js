@@ -88,7 +88,7 @@ const Home = (props) => {
         srcImage={
             <Image
               source={{
-                uri: selected.image ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg',
+                uri: selected.image
               }}
             />
         }
@@ -170,12 +170,14 @@ const Home = (props) => {
           style={styles.webview}
           originWhitelist={['*']}
           javaScriptEnabledAndroid={true}
-          userAgent={'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'}
+          userAgent={'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'}
           useWebKit={true}
           incognito={true}
           javaScriptEnabled={true}
           injectedJavaScript={jsCode}
-          source={{uri: url}}
+          source={{
+            uri: url,
+          }}
           onMessage={event => checkForLink(event.nativeEvent.data)} />
     </View>
   );

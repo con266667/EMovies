@@ -19,7 +19,7 @@ const Player = (props) => {
   const [bottomVisibility, setBottomVisibility] = React.useState(true);
 //   const [timer, setTimer] = useState(null);
     const timer = useRef();
-    const [countdown, setCountdown] = useState(4);
+    const [countdown, setCountdown] = useState(3);
     const [running, setRunning] = useState(false);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const Player = (props) => {
     }, [countdown]);
 
     const resetTimer = () => {
-        setCountdown(4);
+        setCountdown(3);
         setBottomVisibility(true);
     }
 
@@ -82,7 +82,18 @@ const Player = (props) => {
                 paused={paused}
                 width={Dimensions.get('window').width}
                 height={Dimensions.get('window').height}
-                source={{ uri: props.uri }}
+                source={{
+                    uri: props.uri,
+                    headers: {
+                        // 'Connection': 'Keep-Alive',
+                        // 'Host': URL(props.uri).hostname,
+                        'Accept-Language': 'en-CA,en-US;q=0.9,en;q=0.8',
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                        // 'Referer': props.uri,
+                        // 'Accept-Encoding': 'gzip',
+                        // 'X-Playback-Session-Id': '513B7969-87E5-4253-90AD-0B72D46571E5',
+                    }
+                }}
                 bufferConfig={{
                     minBufferMs: 30000,
                     maxBufferMs: 500000,
