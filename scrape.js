@@ -4,9 +4,7 @@ export const jsCode = "setTimeout(function(){window.location.href = document.get
         
 export const scrapeView = (html) => {
     const soup = new JSSoup(html);
-
-    console.log("Loading...");
-    
+        
     if (soup.find('video') != null) {
         const link = soup.find('video')['attrs']['src'];
         return link;
@@ -15,7 +13,6 @@ export const scrapeView = (html) => {
 }
 
 export const getVHLink = async (title, year) => {
-    console.log(title + ": " + year);
     const response = await fetch("https://vhmovies.com/search?keyword=" + title);
     const html = await response.text();
     const soup = new JSSoup(html);
@@ -35,8 +32,6 @@ export const getVHLink = async (title, year) => {
     } else {
         link = finalATag['attrs']['href'];
     }
-
-    console.log('https://vhmovies.com' + link + 'watching.html');
 
     return 'https://vhmovies.com' + link + 'watching.html';
 }

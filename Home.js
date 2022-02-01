@@ -45,28 +45,26 @@ const Home = (props) => {
 
   useEffect(() => {
     const setup = async () => {
-      if (currentUser().moviesWatched === undefined) {
-        await getMoviesWatched(currentUser(), dispatch);
-      }
+      moviesWatched = await getMoviesWatched(currentUser(), dispatch);
 
       movieRecommendations = await getMovieRecommendations(currentUser(), dispatch);
 
       setLists(_ => [
         {
-          title: 'Continue Watching',
-          items: currentUser().moviesWatched
+          'title': 'Continue Watching',
+          'items': currentUser().moviesWatched
         },
         {
-          title: 'Recommended',
-          items: movieRecommendations
+          'title': 'Recommended',
+          'items': movieRecommendations
         }
       ]);
     }
 
-    if (lists.map(list => list.title).indexOf('Continue Watching') === -1) {
+    if (lists.length === 0) {
      setup();
     }
-  }, [currentUser().moviesWatched, setLists]);
+  }, [setLists]);
 
   const checkForLink = (html) => {
     const link = scrapeView(html);
@@ -139,6 +137,7 @@ const Home = (props) => {
                         activeOpacity={.5}
                         onFocus={() => {
                           setSelected(item);
+                          // setSelected( Object.assign({}, item) );
                           if (itemLocations[list.title] !== undefined) {
                             scrollview.scrollTo({ x: 0, y: itemLocations[list.title].y, animated: true });
                           }

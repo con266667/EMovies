@@ -18,7 +18,7 @@ export const getMoviesWatched = async (userdata, dispatch) => {
     const pushMoviesWatched = (uuid, moviesWatched) => dispatch({ type: 'ADD_MOVIES_WATCHED', payload: {'uuid': uuid, 'moviesWatched': moviesWatched} })
 
     const response = await axios.get('https://api.trakt.tv/sync/history/movies', defaultConfig(userdata));
-    const moviesWatchedArray = traktMoviesToObjectList(response.data);
+    const moviesWatchedArray = await traktMoviesToObjectList(response.data);
 
     pushMoviesWatched(userdata['uuid'], moviesWatchedArray);
     return moviesWatchedArray;
@@ -28,7 +28,7 @@ export const getMovieRecommendations = async (userdata, dispatch) => {
     const pushMovieRecommendations = (uuid, movieRecommendations) => dispatch({ type: 'ADD_MOVIE_RECOMMENDATIONS', payload: {'uuid': uuid, 'movieRecommendations': movieRecommendations} })
 
     const response = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
-    const movieRecommendationsArray = traktMoviesToObjectList(response.data);
+    const movieRecommendationsArray = await traktMoviesToObjectList(response.data);
 
     return movieRecommendationsArray;
 }
