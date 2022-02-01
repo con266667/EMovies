@@ -33,5 +33,9 @@ export const getVHLink = async (title, year) => {
     } else {
         link = finalATag['attrs']['href'];
     }
-    return 'https://vhmovies.com' + link + '/watching.html?ep=0';
+    // const subresponse = await fetch('https://vhmovies.com' + link);
+    // const subhtml = await subresponse.text();
+    // console.log(subhtml);
+
+    return 'https://vhmovies.com' + link + '/watching.html';
 }

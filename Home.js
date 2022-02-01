@@ -241,9 +241,8 @@ const styles = StyleSheet.create({
     smallCard: {
       height: 130,
       width: 200,
-      backgroundColor: '#fff',
       borderRadius: 15,
-      marginRight: 35,
+      marginRight: 25,
     },
     webview: {
       opacity: 0,

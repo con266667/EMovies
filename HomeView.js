@@ -28,9 +28,11 @@
                     sideRef={props.sideRef} />
             )
          case 'Movie':
-             return (<View />)
+            return (<View />)
          case 'TV Show':
-             return (<View />)
+            return (<View />)
+        case 'Search':
+            return (<View />)
      }
      return (<View></View>)
  }
