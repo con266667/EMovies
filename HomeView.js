@@ -14,19 +14,23 @@
  import Header from './Header';
  import Home from './Home';
  import MoviePage from './MoviePage';
- import { View } from 'react-native';
+ import { Dimensions, View } from 'react-native';
  
   
  
- const HomeView = () => {
-    const state = useSelector(state => state)
-     switch(state.page.page) {
-         case 'For You':
-             return (<Home />)
+ const HomeView = (props) => {
+     switch(props.page) {
+         case 'Home':
+            return (
+                <Home
+                    width={Dimensions.get('window').width - 68} 
+                    openVideo={props.openVideo} 
+                    sideRef={props.sideRef} />
+            )
          case 'Movie':
              return (<View />)
          case 'TV Show':
-             return (<View></View>)
+             return (<View />)
      }
      return (<View></View>)
  }

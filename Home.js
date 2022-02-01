@@ -12,6 +12,7 @@ import ReactNative, {
     Pressable,
     Dimensions,
     ActivityIndicator,
+    findNodeHandle,
   } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 
@@ -77,7 +78,8 @@ const Home = (props) => {
   const checkForLink = (html) => {
     const link = scrapeView(html);
     if (link != '') {
-      setLoadingMovie('')
+      setLoadingMovie('');
+      setUrl('');
       props.openVideo(link);
     }
   }
@@ -140,6 +142,7 @@ const Home = (props) => {
                     <View key={item.title}>
                       <TouchableOpacity
                         hasTVPreferredFocus={list.items[0] === item}
+                        nextFocusLeft = {findNodeHandle(props.sideRef.current)}
                         activeOpacity={.5}
                         onFocus={() => {
                           setSelected(item);

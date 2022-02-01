@@ -15,7 +15,7 @@ import Header from './Header';
 import Home from './Home';
 import MoviePage from './MoviePage';
 import HomeView from './HomeView';
-import { Dimensions, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import WebView from 'react-native-webview';
 import JSSoup from 'jssoup'; 
@@ -34,6 +34,9 @@ const backgroundStyle = {
 };
 
 const App = (props) => {
+    const [selectedPage, setSelectedPage] = useState('Home');
+    const [sidebarActive, setSidebarActive] = useState(false);
+
     const openVideo = (url) => {
         console.log(url);
         // console.log(Navigation.)
@@ -52,15 +55,46 @@ const App = (props) => {
         })
     }
 
+    const setPage = (page) => {
+        setSelectedPage(page);
+        setSidebarActive(true);
+    }
+
+    const homeRef = React.useRef(null);
+
     return (
         <View style={styles.content}>
             <View style={styles.sidebar}>
-                <HomeIcon path={'#666'} style={styles.icon} />
-                <TV path={'#666'} style={styles.icon} />
-                <Video path={'#666'} style={styles.icon} />
-                <Search path={'#666'} style={styles.icon} />
+                <TouchableWithoutFeedback 
+                    onFocus={() => setPage('Home')} 
+                    onBlur={() => setSidebarActive(false)}
+                    ref={(ref) => homeRef.current = ref} >
+                    <HomeIcon 
+                        path={selectedPage === 'Home' ? '#fff' : '#666'} 
+                        style={styles.icon} 
+                        opacity={selectedPage === 'Home' && sidebarActive ? 0.7 : 1} />
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onFocus={() => setPage('TV')} onBlur={() => setSidebarActive(false)}>
+                    <TV 
+                        path={selectedPage === 'TV' ? '#fff' : '#666'} 
+                        style={styles.icon} 
+                        opacity={selectedPage === 'TV' && sidebarActive ? 0.7 : 1} />
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onFocus={() => setPage('Movies')} onBlur={() => setSidebarActive(false)}>
+                    <Video 
+                        path={selectedPage === 'Movies' ? '#fff' : '#666'} 
+                        style={styles.icon} 
+                        opacity={selectedPage === 'Movies' && sidebarActive ? 0.7 : 1} />
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onFocus={() => setPage('Search')} onBlur={() => setSidebarActive(false)}>
+                    <Search 
+                        path={selectedPage === 'Search' ? '#fff' : '#666'} 
+                        style={styles.icon} 
+                        opacity={selectedPage === 'Search' && sidebarActive ? 0.7 : 1} />
+                </TouchableWithoutFeedback>
             </View>
-            <Home width={Dimensions.get('window').width - 68} openVideo={openVideo}/>
+            {/* <Home width={Dimensions.get('window').width - 68} openVideo={openVideo} sideRef={homeRef}/> */}
+            <HomeView page={selectedPage} openVideo={openVideo} sideRef={homeRef} />
         </View>
     );
 };
