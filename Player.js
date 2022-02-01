@@ -16,7 +16,7 @@ const Player = (props) => {
   const [videoInfo, setVideoInfo] = useState({"currentTime": 0, "playableDuration": 0, "seekableDuration": 1})
   const [lastEventType, setLastEventType] = React.useState('hmmm');
   const [paused, setPaused] = React.useState(false);
-  const [bottomVisibility, setBottomVisibility] = React.useState(false);
+  const [bottomVisibility, setBottomVisibility] = React.useState(true);
 //   const [timer, setTimer] = useState(null);
     const timer = useRef();
     const [countdown, setCountdown] = useState(4);

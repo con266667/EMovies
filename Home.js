@@ -22,7 +22,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getImages } from './tmdb';
 import { getVHLink, jsCode, scrapeView } from './scrape';
 import WebView from 'react-native-webview';
-import { getMoviesWatched } from './Trakt';
+import { getMovieRecommendations, getMoviesWatched } from './Trakt';
+// import { ImageCacheProvider, CachedImage } from 'react-native-cached-image';
   
 
 const Home = (props) => {
@@ -48,26 +49,18 @@ const Home = (props) => {
         await getMoviesWatched(currentUser(), dispatch);
       }
 
-      const continueWatchingItems = [];
-      var moviesWatched = currentUser().moviesWatched.map(movie => movie.movie);
-      moviesWatched = moviesWatched.filter((value, index, self) => self.findIndex(movie => movie.title === value.title) === index)
+      movieRecommendations = await getMovieRecommendations(currentUser(), dispatch);
 
-      for (const movie of moviesWatched) {
-        const _images = await getImages(movie.ids.tmdb);
-        const _link = await getVHLink(movie.title, movie.year);
-        const background = 'https://image.tmdb.org/t/p/original/' + _images['backdrops'][0].file_path;
-        continueWatchingItems.push({
-          title: movie.title,
-          year: movie.year,
-          image: background,
-          vhlink: _link
-        });
-      }
-
-      setLists(_ => [{
-        title: 'Continue Watching',
-        items: continueWatchingItems
-      }]);
+      setLists(_ => [
+        {
+          title: 'Continue Watching',
+          items: currentUser().moviesWatched
+        },
+        {
+          title: 'Recommended',
+          items: movieRecommendations
+        }
+      ]);
     }
 
     if (lists.map(list => list.title).indexOf('Continue Watching') === -1) {
@@ -95,11 +88,11 @@ const Home = (props) => {
           scale: 'CONTAIN'
         }}
         srcImage={
-          <Image
-            source={{
-              uri: selected.image,
-            }}
-          />
+            <Image
+              source={{
+                uri: selected.image ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg',
+              }}
+            />
         }
         srcTransform={{
           anchor: { x: 0.5, y: 0.7 },
@@ -141,7 +134,7 @@ const Home = (props) => {
                   list.items.map((item) => 
                     <View key={item.title}>
                       <TouchableOpacity
-                        hasTVPreferredFocus={list.items[0] === item}
+                        hasTVPreferredFocus={list.items[0] === item && list.title === 'Continue Watching'}
                         nextFocusLeft = {findNodeHandle(props.sideRef.current)}
                         activeOpacity={.5}
                         onFocus={() => {
@@ -158,7 +151,7 @@ const Home = (props) => {
                         style={styles.smallCard}
                         source={{
                           uri: item.image,
-                        }}></Image>
+                        }} />
                       </TouchableOpacity>
                       <ActivityIndicator 
                         style={styles.loadingSmallCard} 

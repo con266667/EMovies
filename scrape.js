@@ -15,6 +15,7 @@ export const scrapeView = (html) => {
 }
 
 export const getVHLink = async (title, year) => {
+    console.log(title + ": " + year);
     const response = await fetch("https://vhmovies.com/search?keyword=" + title);
     const html = await response.text();
     const soup = new JSSoup(html);
@@ -22,6 +23,7 @@ export const getVHLink = async (title, year) => {
     var finalATag;
     aTags.forEach(aTag => {
         if (
+            finalATag === undefined &&
             aTag['descendants'].filter(x => x['name'] == 'p').filter(x => x['nextElement']['_text'] == year.toString()).length > 0
         ) {
             finalATag = aTag;
@@ -33,9 +35,8 @@ export const getVHLink = async (title, year) => {
     } else {
         link = finalATag['attrs']['href'];
     }
-    // const subresponse = await fetch('https://vhmovies.com' + link);
-    // const subhtml = await subresponse.text();
-    // console.log(subhtml);
 
-    return 'https://vhmovies.com' + link + '/watching.html';
+    console.log('https://vhmovies.com' + link + 'watching.html');
+
+    return 'https://vhmovies.com' + link + 'watching.html';
 }
