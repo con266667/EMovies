@@ -39,6 +39,7 @@ export const getAllMoviesLink = async (title, year) => {
     } else {
         link = finalATag['attrs']['href'];
     }
+
     return link === '#' ? await getVHLink(title, year) : link;
 }
 

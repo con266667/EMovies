@@ -21,7 +21,7 @@ import Header from './Header';
 import { DarkenBlend, DstOverComposition, EllipticalGradient, Emboss, HardLightBlend, ImageBackgroundPlaceholder, LinearGradient, QuadGradient, RadialGradient, RectangularGradient, ScreenBlend, SoftLightBlend, SrcOverComposition } from 'react-native-image-filter-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import { getImages } from './tmdb';
-import { getVHLink, jsCode, scrapeView } from './scrape';
+import { getAllMoviesLink, getVHLink, jsCode, scrapeView } from './scrape';
 import WebView from 'react-native-webview';
 import { getMovieRecommendations, getMoviesWatched } from './Trakt';
 import axios from 'axios';
@@ -49,7 +49,8 @@ const Home = (props) => {
     // const response = await axios.get(movie.vhlink);
     // console.log(response.data);
     // const thishtml = response.data;
-    setUrl(movie.link);
+    const link = await getAllMoviesLink(movie.title, movie.year);
+    setUrl(link);
   }
 
   const scrapeView2 = (html) => {
@@ -168,8 +169,7 @@ const Home = (props) => {
                         }} 
                         onPress={() => {
                           setLoadingMovie(item.title);
-                          console.log(item.link);
-                          setUrl(item.link);
+                          getMovie(item);
                         }}>
                         <Image
                         style={styles.smallCard}
