@@ -21,10 +21,19 @@ import { Provider } from 'react-redux';
 import persistReducer from 'redux-persist/es/persistReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Player from './Player';
+import { CacheManager } from '@georstat/react-native-image-cache';
+import { Dirs } from 'react-native-file-access';
 
 const rootReducer = combineReducers({ page: PageReducer, auth: AuthReducer });
 
 const storage = AsyncStorage;
+
+CacheManager.config = {
+    baseDir: `${Dirs.CacheDir}/images_cache/`,
+    blurRadius: 15,
+    sourceAnimationDuration: 1000,
+    thumbnailAnimationDuration: 1000,
+  };
 
 // storage.clear();
 

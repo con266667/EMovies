@@ -12,11 +12,11 @@ import Video from 'react-native-video';
 
 
 const Player = (props) => {
-  const videoRef = useRef(null);
-  const [videoInfo, setVideoInfo] = useState({"currentTime": 0, "playableDuration": 0, "seekableDuration": 1})
-  const [lastEventType, setLastEventType] = React.useState('hmmm');
-  const [paused, setPaused] = React.useState(false);
-  const [bottomVisibility, setBottomVisibility] = React.useState(true);
+    const videoRef = useRef(null);
+    const [videoInfo, setVideoInfo] = useState({"currentTime": 0, "playableDuration": 0, "seekableDuration": 1})
+    const [lastEventType, setLastEventType] = React.useState('hmmm');
+    const [paused, setPaused] = React.useState(false);
+    const [bottomVisibility, setBottomVisibility] = React.useState(true);
 //   const [timer, setTimer] = useState(null);
     const timer = useRef();
     const [countdown, setCountdown] = useState(3);
@@ -28,7 +28,7 @@ const Player = (props) => {
                 setCountdown(countdown - 1);
             }
 
-            if (countdown === 0 && !paused) {
+            if (countdown === 0 && !paused && videoInfo.seekableDuration > 1) {
                 setBottomVisibility(false);
             }
         }, 1000);
@@ -78,25 +78,17 @@ const Player = (props) => {
     return (
         <View style={styles.main} >
             <Video
+                maxBitRate={1000000}
                 ref={videoRef}
                 paused={paused}
                 width={Dimensions.get('window').width}
                 height={Dimensions.get('window').height}
                 source={{
                     uri: props.uri,
-                    headers: {
-                        // 'Connection': 'Keep-Alive',
-                        // 'Host': URL(props.uri).hostname,
-                        'Accept-Language': 'en-CA,en-US;q=0.9,en;q=0.8',
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
-                        // 'Referer': props.uri,
-                        // 'Accept-Encoding': 'gzip',
-                        // 'X-Playback-Session-Id': '513B7969-87E5-4253-90AD-0B72D46571E5',
-                    }
                 }}
                 bufferConfig={{
-                    minBufferMs: 30000,
-                    maxBufferMs: 500000,
+                    minBufferMs: 300000,
+                    maxBufferMs: 50000000,
                     bufferForPlaybackAfterRebufferMs: 10000
                 }}
                 style={styles.video}

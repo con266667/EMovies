@@ -16,14 +16,16 @@ import ReactNative, {
   } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 
+import JSSoup from 'jssoup'; 
 import Header from './Header';
-import { DarkenBlend, DstOverComposition, EllipticalGradient, Emboss, HardLightBlend, ImageBackgroundPlaceholder, RadialGradient, ScreenBlend, SoftLightBlend, SrcOverComposition } from 'react-native-image-filter-kit';
+import { DarkenBlend, DstOverComposition, EllipticalGradient, Emboss, HardLightBlend, ImageBackgroundPlaceholder, LinearGradient, QuadGradient, RadialGradient, RectangularGradient, ScreenBlend, SoftLightBlend, SrcOverComposition } from 'react-native-image-filter-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import { getImages } from './tmdb';
 import { getVHLink, jsCode, scrapeView } from './scrape';
 import WebView from 'react-native-webview';
 import { getMovieRecommendations, getMoviesWatched } from './Trakt';
-// import { ImageCacheProvider, CachedImage } from 'react-native-cached-image';
+import axios from 'axios';
+import { CachedImage } from '@georstat/react-native-image-cache';
   
 
 const Home = (props) => {
@@ -38,16 +40,44 @@ const Home = (props) => {
   });
   const [url, setUrl] = useState('');
   const [loadingMovie, setLoadingMovie] = useState('');
-
+  const [html, setHtml] = useState('');
   const [lists, setLists] = useState([]);
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
+  const getMovie = async (movie) => {
+    // const response = await axios.get(movie.vhlink);
+    // console.log(response.data);
+    // const thishtml = response.data;
+    setUrl(movie.link);
+  }
+
+  const scrapeView2 = (html) => {
+    const soup = new JSSoup(html);
+        
+    if (soup.find('video') != null) {
+        const link = soup.find('video')['attrs']['src'];
+        console.log(link);
+        setLoadingMovie('');
+        setUrl('');
+        props.openVideo(link);
+    } else if (soup.find('iframe') != null) {
+        if (soup.find('iframe')['attrs']['src'] != null) {
+            const link = soup.find('iframe')['attrs']['src'];
+            console.log(link);
+            setUrl(link);
+        }
+    }
+    return '';
+  }
+
+  const jsCode2 = "setTimeout(() => { window.ReactNativeWebView.postMessage( document.documentElement.innerHTML ); }, 1000);";
+
   useEffect(() => {
     const setup = async () => {
-      moviesWatched = await getMoviesWatched(currentUser(), dispatch);
+      var moviesWatched = await getMoviesWatched(currentUser(), dispatch);
 
-      movieRecommendations = await getMovieRecommendations(currentUser(), dispatch);
+      var movieRecommendations = await getMovieRecommendations(currentUser(), dispatch);
 
       setLists(_ => [
         {
@@ -76,40 +106,33 @@ const Home = (props) => {
   }
 
   return (
-    <View width={props.width}>
-      <DstOverComposition
-        style={{ 
+    <View width={props.width}>      
+      <Image 
+        source={{ uri: selected.image }}
+        style={{
           width: Dimensions.get('window').width,
           height: Dimensions.get('window').height * 0.55,
-        }}
-        dstTransform={{
-          scale: 'CONTAIN'
-        }}
-        srcImage={
-            <Image
-              source={{
-                uri: selected.image
-              }}
-            />
-        }
-        srcTransform={{
-          anchor: { x: 0.5, y: 0.7 },
-          translate: { x: 0.5, y: 1 }
-        }}
-        dstImage={
-          <EllipticalGradient
-            colors={['rgba(0, 0, 0, 0)', 'rgba(48, 48, 48, 1)']}
-            radiusX={'160min'}
-            center={{ x: '50w', y: '50h' }}
-          />
-        }
-        dstTransform={{
-          scale: 'COVER'
-        }}
+        }} />
+      <LinearGradient 
+        colors={['rgba(48, 48, 48, 1)', 'rgba(0, 0, 0, 0)', 'rgba(48, 48, 48, 1)']}
+        stops={[0, 0.5, 1]}
+        width={Dimensions.get('window').width}
+        height={Dimensions.get('window').height * 0.55}
+        style={styles.feature}
+      />
+      <LinearGradient
+        colors={['rgba(48, 48, 48, 1)', 'rgba(0, 0, 0, 0)']}
+        stops={[0, 1]}
+        width={Dimensions.get('window').width}
+        height={Dimensions.get('window').height * 0.55}
+        style={styles.feature}
+        start={{'x': '50w', 'y': '0h'}}
+        end={{'x': '50w', 'y': '100h'}}
       />
       <Text style={styles.featureTitle}>{selected.title}</Text>
       <Text style={styles.featureYear}>{selected.year.toString()}</Text>
       <ScrollView
+        fadingEdgeLength={50}
         showsVerticalScrollIndicator={false}
         height={Dimensions.get('window').height * 0.5}
         ref={(ref) => setScrollview(ref)}
@@ -124,6 +147,7 @@ const Home = (props) => {
               <Text style={styles.subtitle}>{list.title}</Text>
               <View height={5}></View>
               <ScrollView
+                fadingEdgeLength={10}
                 style={styles.showRow} 
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
@@ -136,15 +160,16 @@ const Home = (props) => {
                         nextFocusLeft = {findNodeHandle(props.sideRef.current)}
                         activeOpacity={.5}
                         onFocus={() => {
-                          setSelected(item);
-                          // setSelected( Object.assign({}, item) );
+                          // setSelected(item);
+                          setSelected( Object.assign({}, item) );
                           if (itemLocations[list.title] !== undefined) {
                             scrollview.scrollTo({ x: 0, y: itemLocations[list.title].y, animated: true });
                           }
                         }} 
                         onPress={() => {
-                          setLoadingMovie(item.title)
-                          setUrl(item.vhlink);
+                          setLoadingMovie(item.title);
+                          console.log(item.link);
+                          setUrl(item.link);
                         }}>
                         <Image
                         style={styles.smallCard}
@@ -177,6 +202,11 @@ const Home = (props) => {
           injectedJavaScript={jsCode}
           source={{
             uri: url,
+            // uri: 'http://192.168.86.32:9097/' + url,
+            // uri: 'https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending',
+            headers: {
+              'Accept-Language': 'en-CA,en;q=0.9',
+            }
           }}
           onMessage={event => checkForLink(event.nativeEvent.data)} />
     </View>
@@ -206,6 +236,8 @@ const styles = StyleSheet.create({
       height: '55%',
       width: '100%',
       // backgroundColor: '#fff',
+      position: 'absolute',
+      top: 0,
     },
     featureTitle: {
       position: 'absolute',
@@ -241,6 +273,10 @@ const styles = StyleSheet.create({
     webview: {
       opacity: 0,
       position: 'absolute',
+      width: '100%',
+      height: '100%',
+      top: 0,
+      left: 0,
     },
     loadingSmallCard: {
       marginTop: -104,

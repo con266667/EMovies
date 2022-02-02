@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getVHLink } from "./scrape";
+import { getAllMoviesLink, getVHLink } from "./scrape";
 import { getImages } from "./tmdb";
 
 const api_key = 'bd40bc484afbea19226a29277101fe86a25269479697e2e959cb3a3d25a8f819';
@@ -52,12 +52,13 @@ const traktMoviesToObjectList = async (data) => {
 
 const traktMovieToObject = async (movie) => {
     const _images = await getImages(movie.ids.tmdb);
-    const _link = await getVHLink(movie.title, movie.year);
+    const _link = await getAllMoviesLink(movie.title, movie.year);
+    // console.log(await getAllMoviesLink(movie.title, movie.year))
     const background = 'https://image.tmdb.org/t/p/original/' + _images['backdrops'][0].file_path;
     return {
         title: movie.title,
         year: movie.year,
         image: background,
-        vhlink: _link
+        link: _link
     };
 }
