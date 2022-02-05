@@ -33,6 +33,7 @@ const Webview = (props) => {
 const styles = StyleSheet.create({
     webview: {
         opacity: 0,
+        color: '#000',
         position: 'absolute',
         width: '100%',
         height: '100%',

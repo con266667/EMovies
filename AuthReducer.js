@@ -5,7 +5,8 @@ const INITIAL_STATE = {
   users: [],
   currentUserUUID: '',
   playback: {},
-  lists: {}
+  lists: {},
+  watchProgress: {}
 };
 
 const listsDefault = {
@@ -60,6 +61,12 @@ const authReducer = (state = INITIAL_STATE, action) => {
       newstate.lists[action.payload.uuid][action.payload.page]['lastUpdated'] = Date.now();
       return Object.assign({}, newstate, {
         lists: newstate.lists
+      });
+    case 'UPDATE_WATCH_PROGRESS':
+      newstate = Object.assign({}, state);
+      newstate.watchProgress[action.payload.uuid] = action.payload.watchProgress;
+      return Object.assign({}, newstate, {
+        watchProgress: newstate.watchProgress
       });
     default:
       return state

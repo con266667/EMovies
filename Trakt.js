@@ -15,15 +15,22 @@ const defaultConfig = (userdata) => {
 }
 
 export const getMoviesWatched = async (userdata, dispatch, state) => {
-    const response = await axios.get('https://api.trakt.tv/sync/history/movies', defaultConfig(userdata));
-    return await storeVideoListData(response.data, dispatch, true, state);
+    try {
+        const response = await axios.get('https://api.trakt.tv/sync/history/movies', defaultConfig(userdata));
+        return await storeVideoListData(response.data, dispatch, true, state);
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
 }
 
 export const getPlayback = async (userdata, dispatch, state) => {
     const response = await axios.get('https://api.trakt.tv/sync/playback/shows', defaultConfig(userdata));
 
-    dispatch({ type: 'SET_PLAYBACK', payload: {'uuid': userdata.uuid, 'playback': response.data} })
-    return await storeVideoListData(response.data, dispatch, false, state);
+    dispatch({ type: 'UPDATE_WATCH_PROGRESS', payload: {'uuid': userdata.uuid, 'watchProgress': response.data} })
+    await storeVideoListData(response.data.filter(video => video.type === 'movie'), dispatch, true, state);
+    await storeVideoListData(response.data.filter(video => video.type !== 'movie'), dispatch, false, state);
+    return response.data;
 }
 
 export const getShowEpisodes = async (traktid, dispatch) => {
@@ -44,80 +51,13 @@ export const getTrendingShows = async (userdata, dispatch, state) => {
 }
 
 export const getMovieRecommendations = async (userdata, dispatch, state) => {
-    const response = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
-    return await storeVideoListData(response.data, dispatch, true, state);
-}
-
-const traktShowsToObjectList = async (data, dispatch) => {
-    var shows;
-    if (data[0].show !== undefined) {
-        shows = data.map(show => show.show);
-    } else {
-        shows = data;
+    try {
+        const response = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
+        return await storeVideoListData(response.data, dispatch, true, state);
+    } catch (error) {
+        console.log(error);
+        return [];
     }
-    shows = shows.filter((value, index, self) => self.findIndex(show => show.title === value.title) === index);
-    const showsArray = [];
-
-    for (const show of shows) {
-        showsArray.push(await traktShowToObject(show, dispatch));
-    }
-
-    return showsArray;
-}
-
-const traktShowToObject = async (show, dispatch) => {
-    const _images = await getImages(show.ids.tmdb, show.ids.trakt, dispatch, false);
-    const background = 'https://image.tmdb.org/t/p/original' + 
-        (_images['backdrops'].length > 0 ? _images['backdrops'][0].file_path : _images['posters'][0].file_path);
-    
-    dispatch({ type: 'UPDATE_SHOW', payload: {
-        'id': show.ids.trakt,
-        'title': show.title,
-        'year': show.year,
-        'image': background,
-        'images': _images,
-        'traktObject': show
-    }});
-
-    return {
-        title: show.title,
-        year: show.year,
-        image: background,
-        movie: false
-    };
-}
-
-const traktMoviesToObjectList = async (data, dispatch) => {
-    var movies;
-    if (data[0].movie !== undefined) {
-        movies = data.map(movie => movie.movie);
-    } else {
-        movies = data;
-    }
-    movies = movies.filter((value, index, self) => self.findIndex(movie => movie.title === value.title) === index);
-    const moviesArray = [];
-
-    for (const movie of movies) {
-        moviesArray.push(await traktMovieToObject(movie, dispatch));
-    }
-
-    return moviesArray;
-}
-
-const traktMovieToObject = async (movie, dispatch) => {
-    const _images = await getImages(movie.ids.tmdb, movie.ids.trakt, dispatch, true);
-    const background = 'https://image.tmdb.org/t/p/original/' + _images['backdrops'][0].file_path;
-
-    dispatch({ type: 'UPDATE_MOVIE', payload: {
-        'id': movie.ids.trakt,
-        'title': movie.title,
-        'year': movie.year,
-        'image': background,
-        'images': _images,
-        'traktObject': movie
-    }});
-
-    return movie;
 }
 
 const stripVideos = (videos) => {
@@ -132,7 +72,7 @@ const stripVideo = (video) => {
 
 const storeVideoListData = async (list, dispatch, aremovies, state) => {
     var videos = stripVideos(list);
-    videos = videos.filter((v,i,a)=>a.findIndex(t=>(t.ids.trakt===v.ids.trakt))===i)
+    videos = videos.filter((v,i,a)=>a.findIndex(t=>(t.ids.imdb===v.ids.imdb))===i);
     for (const video of videos) {
         storeIsMovie(video, aremovies, dispatch);
         await getImagesFromVideo(video, dispatch, aremovies, state);
@@ -143,17 +83,18 @@ const storeVideoListData = async (list, dispatch, aremovies, state) => {
 
 const storeIsMovie = (video, ismovie, dispatch) => {
     dispatch({ type: 'ADD_IS_MOVIE', payload: {
-        'id': video.ids.trakt,
+        'id': video.ids.imdb,
         'isMovie': ismovie,
     }});
 }
 
 const getImagesFromVideo = async (video, dispatch, movie, state) => {
-    if (state.videoInfo.videoInfo.images[video.ids.trakt] !== undefined) {
-        return state.videoInfo.videoInfo.images[video.ids.trakt];
+    if (state.videoInfo.videoInfo.images[video.ids.imdb] !== undefined) {
+        return state.videoInfo.videoInfo.images[video.ids.imdb];
     }
-
-    return await getImages(video['ids']['tmdb'], video['ids']['trakt'], dispatch, movie);
+    
+    const images = await getImages(video['ids']['tmdb'], video['ids']['imdb'], dispatch, movie);
+    return images;
 }
 
 const logObject = (traktObject, progress, movie, episode) => {
@@ -173,15 +114,12 @@ const logObject = (traktObject, progress, movie, episode) => {
 
 export const logPlay = async (userdata, traktObject, progress, movie, episode) => {
     const config = defaultConfig(userdata);
-    console.log(traktObject);
     const response = await axios.post('https://api.trakt.tv/scrobble/start', logObject(traktObject, progress, movie, episode), config);
-    return response;
+    return response.data;
 }
 
 export const logPause = async (userdata, traktObject, progress, movie, episode) => {
     const config = defaultConfig(userdata);
-    console.log(traktObject);
-
     const response = await axios.post('https://api.trakt.tv/scrobble/pause', logObject(traktObject, progress, movie, episode), config);
-    return response;
+    return response.data;
 }

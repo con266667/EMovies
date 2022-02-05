@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTrendingShows } from './Trakt';
+import { getPlayback, getTrendingShows } from './Trakt';
 import Page from './Page';
   
 
@@ -24,25 +24,19 @@ const Shows = (props) => {
 
   useEffect(() => {
     const setup = async () => {
-        if (!isCached('tv')) {
+      await getPlayback(currentUser(), dispatch, state);
+      if (!isCached('tv')) {
         const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
 
-    //   var continueWatching = state.auth.auth.playback[state.auth.auth.currentUserUUID].filter(show => show.type === 'episode');
-
-    //   continueWatching = continueWatching.map(show =>
-    //      ({
-    //         'title': show.show.title,
-    //         'year': show.show.year,
-    //         'image': state.videoInfo.videoInfo.shows.filter(_show => _show.title === show.show.title && _show.year === show.show.year)[0].image,
-    //         'progress': show.progress,
-    //      })
-    //   ).filter((value, index, self) => self.findIndex(show => show.title === value.title) === index);
-
         const lists = [
-            {
-                'title': 'Trending',
-                'items': trendingShows
-            }
+          {
+            'title': 'Continue Watching',
+            'items': state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i)
+          },
+          {
+              'title': 'Trending',
+              'items': trendingShows
+          },
         ]
 
         dispatch({ type: 'UPDATE_LISTS', payload: {

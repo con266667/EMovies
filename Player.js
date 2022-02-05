@@ -8,9 +8,11 @@ import ReactNative, {
     View,
     TouchableWithoutFeedback,
   } from 'react-native';
+import { Navigation } from 'react-native-navigation';
 import Video from 'react-native-video';
 import { useSelector } from 'react-redux';
-import { logPause, logPlay } from './Trakt';
+import { logPause, logPlay, logStop } from './Trakt';
+import { isMovie } from './VideoInfo';
 
 
 const Player = (props) => {
@@ -20,10 +22,8 @@ const Player = (props) => {
     const [lastEventType, setLastEventType] = React.useState('hmmm');
     const [paused, setPaused] = React.useState(false);
     const [bottomVisibility, setBottomVisibility] = React.useState(true);
-//   const [timer, setTimer] = useState(null);
-    const timer = useRef();
     const [countdown, setCountdown] = useState(3);
-    const [running, setRunning] = useState(false);
+
 
     useEffect(() => {
         const lower = setInterval(() => {
@@ -34,6 +34,9 @@ const Player = (props) => {
             if (countdown === 0 && !paused && videoInfo.seekableDuration > 1) {
                 setBottomVisibility(false);
             }
+
+            // console.log(videoInfo.seekableDuration - videoInfo.currentTime);
+
         }, 1000);
 
         return () => {
@@ -49,11 +52,11 @@ const Player = (props) => {
     const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
     const logTraktPlay = () => {
-        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.movie, props.episode);
+        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), props.episode);
     }
 
     const logTraktPause = () => {
-        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.movie, props.episode);
+        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), props.episode);
     }
 
     const myTVEventHandler = evt => {
@@ -107,7 +110,7 @@ const Player = (props) => {
                 bufferConfig={{
                     minBufferMs: 300000,
                     maxBufferMs: 50000000,
-                    bufferForPlaybackAfterRebufferMs: 10000
+                    bufferForPlaybackAfterRebufferMs: 1000
                 }}
                 style={styles.video}
                 resizeMode='contain'

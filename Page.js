@@ -67,7 +67,7 @@ const Page = (props) => {
   return (
     <View width={props.width}>      
       <Image 
-        source={{ uri: videoImage(selected.ids !== undefined ? selected.ids.trakt : '', state) }}
+        source={{ uri: videoImage(selected.ids !== undefined ? selected.ids.imdb : '', state) }}
         style={{
           width: Dimensions.get('window').width,
           height: Dimensions.get('window').height * 0.55,
@@ -148,12 +148,7 @@ const Page = (props) => {
           javaScriptEnabled={true}
           injectedJavaScript={jsCode}
           source={{
-            uri: url,
-            // uri: 'http://192.168.86.32:9097/' + url,
-            // uri: 'https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending',
-            headers: {
-              'Accept-Language': 'en-CA,en;q=0.9',
-            }
+            uri: url
           }}
           onMessage={event => checkForLink(event.nativeEvent.data)} />
     </View>

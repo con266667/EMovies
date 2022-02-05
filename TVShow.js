@@ -32,10 +32,8 @@ const TVShow = (props) => {
   }
 
   useEffect(() => {
-    const traktid = props.show.ids.trakt;
-
     const getSeasons = async () => {
-        const seasons = await getShowEpisodes(traktid, dispatch);
+        const seasons = await getShowEpisodes(props.show.ids.trakt, dispatch);
         setSeasons(seasons);
     }
 
@@ -48,10 +46,11 @@ const TVShow = (props) => {
 
   return (
     <View>
+        <Webview url={url} handleLink={handleLink} />
         <Image
             style={styles.backgroundImage}
             source={{
-                uri: videoImage(props.show.ids.trakt, state),
+                uri: videoImage(props.show.ids.imdb, state),
             }} />
         <View style={styles.overlay}>
           <Text style={styles.movieTitle}>{props.show.title}</Text>
@@ -156,7 +155,6 @@ const TVShow = (props) => {
             })}
         </ScrollView>
         }
-        <Webview url={url} handleLink={handleLink} />
     </View>
   );
 };

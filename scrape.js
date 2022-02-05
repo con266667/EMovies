@@ -7,7 +7,7 @@ export const scrapeView = (html) => {
     
     if (soup.find('video') != null) {
         const link = soup.find('video')['attrs']['src'];
-        if (link.includes('m3u8')) {
+        if (link !== undefined && link.includes('m3u8')) {
             return link;
         }
     }

@@ -24,9 +24,9 @@ const videoInfoReducer = (state = INITIAL_STATE, action) => {
         });
     case 'ADD_SEASONS':
         newstate = Object.assign({}, state)
-        updatedShow = newstate.shows.filter(show => show.traktObject.ids.trakt === action.payload.traktid)[0];
+        updatedShow = newstate.shows.filter(show => show.traktObject.ids.imdb === action.payload.traktid)[0];
         updatedShow['seasons'] = action.payload.seasons;
-        newstate = newstate.shows.filter(show => show.traktObject.ids.trakt !== action.payload.traktid);
+        newstate = newstate.shows.filter(show => show.traktObject.ids.imdb !== action.payload.traktid);
         var shows = [...newstate, updatedShow];
         return Object.assign({}, newstate, {
             shows: shows

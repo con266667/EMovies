@@ -11,6 +11,14 @@ const SmallCard = (props) => {
         }
     }, []);
 
+    const item = () => {
+        if (props.item.type === undefined) {
+            return props.item;
+        } else {
+            return props.item[props.item.type === 'movie' ? 'movie' : 'show'];
+        }
+    }
+
     return (
         <View key={props.list.title + props.index.toString()}>
             <TouchableOpacity
@@ -20,35 +28,52 @@ const SmallCard = (props) => {
                 nextFocusUp = {props.isTopRow ? findNodeHandle(touchableRef.current) : null}
                 activeOpacity={.2}
                 onFocus={() => {
-                    props.setSelected(props.item);
+                    props.setSelected(item());
                     if (props.itemLocations[props.list.title] !== undefined) {
                         props.scrollview.scrollTo({ x: 0, y: props.itemLocations[props.list.title].y, animated: true });
                     }
                 }} 
                 onPress={() => {
-                    if (props.item.movie) {
-                        props.setLoadingMovie(props.item);
-                        props.getMovie(props.item);
+                    if (props.state.videoInfo.videoInfo.isMovie[item().ids.imdb]) {
+                        props.setLoadingMovie(item());
+                        props.getMovie(item());
                     } else {
-                        props.openShow(props.item);
+                        props.openShow(item());
                     }
                 }}
                 ref={onRef}>
             <Image
                 style={styles.smallCard}
                 source={{
-                    uri: videoImage(props.item.ids.trakt, props.state),
+                    uri: videoImage(item().ids.imdb, props.state),
                 }} />
+            <View style={styles.progressBack} opacity={props.item.progress !== undefined ? 1 : 0} width={175} height={5} />
+            <View style={styles.progress} width={props.item.progress !== undefined ? props.item.progress * 1.75 : 0} height={5} />
             </TouchableOpacity>
+            
             <ActivityIndicator 
                 style={styles.loadingSmallCard} 
                 size={80} color={'#fff'} 
-                opacity={props.loadingMovie.title === props.item.title ? 1 : 0} />
+                opacity={props.loadingMovie.title === item().title ? 1 : 0} />
         </View>
     )
 };
 
 const styles = StyleSheet.create({
+    progress: {
+        marginTop: -5,
+        marginLeft: 12,
+        borderRadius: 5,
+        backgroundColor: '#f02',
+        height: 5,
+    },
+    progressBack: {
+        marginTop: -13,
+        marginLeft: 12,
+        borderRadius: 5,
+        backgroundColor: '#999',
+        height: 5,
+    },
     smallCard: {
         height: 130,
         width: 200,

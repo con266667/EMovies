@@ -24,30 +24,29 @@ const Home = (props) => {
 
   useEffect(() => {
     const setup = async () => {
-      console.log(state.auth.auth.lists[currentUser().uuid]);
       if (!isCached('home')) { 
-          console.log(Date.now() - state.auth.auth.lists[currentUser().uuid]["home"]["lastUpdated"] );
-          var moviesWatched = await getMoviesWatched(currentUser(), dispatch, state);
           var movieRecommendations = await getMovieRecommendations(currentUser(), dispatch, state);
 
-          const lists = [
-            {
-              'title': 'Continue Watching',
-              'items': moviesWatched
-            },
-            {
-              'title': 'Recommended',
-              'items': movieRecommendations
-            }
-          ]
+          if (movieRecommendations.length !== 0) {
+            const lists = [
+              // {
+              //   'title': 'Continue Watching',
+              //   'items': moviesWatched
+              // },
+              {
+                'title': 'Recommended',
+                'items': movieRecommendations
+              }
+            ]
 
-          dispatch({ type: 'UPDATE_LISTS', payload: {
-            lists: lists,
-            page: 'home',
-            uuid: currentUser().uuid
-          }})
+            dispatch({ type: 'UPDATE_LISTS', payload: {
+              lists: lists,
+              page: 'home',
+              uuid: currentUser().uuid
+            }})
 
-          setLists(_ => lists);
+            setLists(_ => lists);
+          }
       } else {
         console.log("Using cached data");
         setLists(_ => state.auth.auth.lists[currentUser().uuid]["home"]["lists"]);
