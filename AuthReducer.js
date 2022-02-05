@@ -4,8 +4,24 @@ const INITIAL_STATE = {
   user_tokens: [],
   users: [],
   currentUserUUID: '',
-  playback: {}
+  playback: {},
+  lists: {}
 };
+
+const listsDefault = {
+  "home": {
+    "lists": [],
+    "lastUpdated": 0
+  },
+  "tv": {
+    "lists": [],
+    "lastUpdated": 0
+  },
+  "movies": {
+    "lists": [],
+    "lastUpdated": 0
+  },
+}
 
 const authReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
@@ -36,6 +52,14 @@ const authReducer = (state = INITIAL_STATE, action) => {
       newstate.playback[action.payload.uuid] = action.payload.playback;
       return Object.assign({}, newstate, {
         playback: newstate.playback
+      });
+    case 'UPDATE_LISTS':
+      newstate = Object.assign({}, state);
+      newstate.lists[action.payload.uuid] = listsDefault;
+      newstate.lists[action.payload.uuid][action.payload.page]['lists'] = action.payload.lists;
+      newstate.lists[action.payload.uuid][action.payload.page]['lastUpdated'] = Date.now();
+      return Object.assign({}, newstate, {
+        lists: newstate.lists
       });
     default:
       return state

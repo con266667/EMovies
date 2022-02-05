@@ -12,10 +12,20 @@ const Shows = (props) => {
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
+  const isCached = (page) => {
+    return !(
+         state.auth.auth.lists[currentUser().uuid] === undefined
+      || state.auth.auth.lists[currentUser().uuid][page] === undefined
+      || state.auth.auth.lists[currentUser().uuid][page]["lists"] === undefined
+      || state.auth.auth.lists[currentUser().uuid][page]["lists"].length === 0
+      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 3600000)
+    )
+  }
+
   useEffect(() => {
     const setup = async () => {
-
-      const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
+        if (!isCached('tv')) {
+        const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
 
     //   var continueWatching = state.auth.auth.playback[state.auth.auth.currentUserUUID].filter(show => show.type === 'episode');
 
@@ -28,16 +38,23 @@ const Shows = (props) => {
     //      })
     //   ).filter((value, index, self) => self.findIndex(show => show.title === value.title) === index);
 
-      setLists(_ => [
-        // {
-        //     'title': 'Continue Watching',
-        //     'items': continueWatching
-        // },
-        {
-          'title': 'Trending',
-          'items': trendingShows
-        }
-      ]);
+        const lists = [
+            {
+                'title': 'Trending',
+                'items': trendingShows
+            }
+        ]
+
+        dispatch({ type: 'UPDATE_LISTS', payload: {
+            lists: lists,
+            page: 'tv',
+            uuid: currentUser().uuid
+        }});
+
+        setLists(_ => lists);
+      } else {
+        setLists(_ => state.auth.auth.lists[currentUser().uuid]["tv"]["lists"]);
+      }
     }
 
     if (lists.length === 0) {
