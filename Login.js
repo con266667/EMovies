@@ -15,7 +15,7 @@
  import Home from './Home';
  import MoviePage from './MoviePage';
  import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
- import userLoginDetails, { getMoviesWatched } from './Trakt';
+ import userLoginDetails, { getMoviesWatched, getPlayback } from './Trakt';
 import axios from 'axios';
  
  const Login = () => {
@@ -51,6 +51,7 @@ import axios from 'axios';
                     key={user.uuid}
                     onPress={() => {
                         dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
+                        // getPlayback(user, dispatch, state);
                         Navigation.push('Login', {
                             component: {
                             name: 'Main',

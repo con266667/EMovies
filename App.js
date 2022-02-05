@@ -26,6 +26,7 @@ import Search from './assets/icons/search.svg';
 import TV from './assets/icons/tv.svg';
 import Video from './assets/icons/video.svg';
 import HomeIcon from './assets/icons/home.svg';
+import { BlurView } from "@react-native-community/blur";
 
 
 
@@ -37,9 +38,7 @@ const App = (props) => {
     const [selectedPage, setSelectedPage] = useState('Home');
     const [sidebarActive, setSidebarActive] = useState(false);
 
-    const openVideo = (url) => {
-        console.log(url);
-        // console.log(Navigation.)
+    const openVideo = (url, video, episode) => {
         Navigation.push(props.componentId, {
             component: {
                 name: 'Player',
@@ -49,7 +48,26 @@ const App = (props) => {
                     }
                 },
                 passProps: {
-                    uri: url
+                    uri: url,
+                    video: video,
+                    episode: episode,
+                }
+            },
+        })
+    }
+
+    const openShow = (show) => {
+        Navigation.push(props.componentId, {
+            component: {
+                name: 'TVShow',
+                options: {
+                    topBar: {
+                        visible: false,
+                    }
+                },
+                passProps: {
+                    show: show,
+                    'openVideo': openVideo
                 }
             },
         })
@@ -61,6 +79,7 @@ const App = (props) => {
     }
 
     const homeRef = React.useRef(null);
+    const tvRef = React.useRef(null);
 
     return (
         <View style={styles.content}>
@@ -71,36 +90,49 @@ const App = (props) => {
                     ref={(ref) => homeRef.current = ref} >
                     <HomeIcon 
                         path={selectedPage === 'Home' ? '#fff' : '#666'} 
-                        style={styles.icon} 
-                        opacity={selectedPage === 'Home' && sidebarActive ? 0.7 : 1} />
+                        style={styles.icon} />
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onFocus={() => setPage('TV')} onBlur={() => setSidebarActive(false)}>
+                <TouchableWithoutFeedback 
+                    onFocus={() => setPage('TV')} 
+                    onBlur={() => setSidebarActive(false)}
+                    ref={(ref) => tvRef.current = ref} >
                     <TV 
                         path={selectedPage === 'TV' ? '#fff' : '#666'} 
-                        style={styles.icon} 
-                        opacity={selectedPage === 'TV' && sidebarActive ? 0.7 : 1} />
+                        style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onFocus={() => setPage('Movies')} onBlur={() => setSidebarActive(false)}>
                     <Video 
                         path={selectedPage === 'Movies' ? '#fff' : '#666'} 
-                        style={styles.icon} 
-                        opacity={selectedPage === 'Movies' && sidebarActive ? 0.7 : 1} />
+                        style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onFocus={() => setPage('Search')} onBlur={() => setSidebarActive(false)}>
                     <Search 
                         path={selectedPage === 'Search' ? '#fff' : '#666'} 
-                        style={styles.icon} 
-                        opacity={selectedPage === 'Search' && sidebarActive ? 0.7 : 1} />
+                        style={styles.icon} />
                 </TouchableWithoutFeedback>
             </View>
-            {/* <Home width={Dimensions.get('window').width - 68} openVideo={openVideo} sideRef={homeRef}/> */}
-            <HomeView page={selectedPage} openVideo={openVideo} sideRef={homeRef} />
+            <HomeView page={selectedPage} openVideo={openVideo} homeRef={homeRef} tvRef={tvRef} openShow={openShow} />
+            { sidebarActive &&
+                <BlurView
+                    style={styles.absolute}
+                    overlayColor=''
+                    blurType="dark"
+                    blurAmount={3}
+                />
+            }
         </View>
     );
 };
 
 
 const styles = StyleSheet.create({
+    absolute: {
+        position: "absolute",
+        top: 0,
+        left: 60,
+        bottom: 0,
+        right: 0
+    },
     wrap: {
         paddingHorizontal: 60,
         paddingVertical: 60,

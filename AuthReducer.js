@@ -4,6 +4,7 @@ const INITIAL_STATE = {
   user_tokens: [],
   users: [],
   currentUserUUID: '',
+  playback: {}
 };
 
 const authReducer = (state = INITIAL_STATE, action) => {
@@ -29,6 +30,12 @@ const authReducer = (state = INITIAL_STATE, action) => {
     case 'SET_CURRENT_USER':
       return Object.assign({}, state, {
         currentUserUUID: action.payload
+      });
+    case 'SET_PLAYBACK':
+      newstate = Object.assign({}, state);
+      newstate.playback[action.payload.uuid] = action.payload.playback;
+      return Object.assign({}, newstate, {
+        playback: newstate.playback
       });
     default:
       return state

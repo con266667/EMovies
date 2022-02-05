@@ -9,9 +9,12 @@ import ReactNative, {
     TouchableWithoutFeedback,
   } from 'react-native';
 import Video from 'react-native-video';
+import { useSelector } from 'react-redux';
+import { logPause, logPlay } from './Trakt';
 
 
 const Player = (props) => {
+    const state = useSelector(state => state)
     const videoRef = useRef(null);
     const [videoInfo, setVideoInfo] = useState({"currentTime": 0, "playableDuration": 0, "seekableDuration": 1})
     const [lastEventType, setLastEventType] = React.useState('hmmm');
@@ -43,11 +46,26 @@ const Player = (props) => {
         setBottomVisibility(true);
     }
 
+    const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
+
+    const logTraktPlay = () => {
+        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.movie, props.episode);
+    }
+
+    const logTraktPause = () => {
+        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.movie, props.episode);
+    }
+
     const myTVEventHandler = evt => {
         if (evt.eventType != 'focus' && evt.eventType != 'blur') {
             resetTimer();
         }
         if (evt.eventType === 'select') {
+            if (!paused) {
+                logTraktPause();
+            } else {
+                logTraktPlay();
+            }
             setPaused(!paused);
         } else if (evt.eventType === 'right') {
             if (videoRef !== null) {
@@ -60,7 +78,6 @@ const Player = (props) => {
         }
         setLastEventType(evt.eventType);
     };
-
 
     useTVEventHandler(myTVEventHandler);
 
@@ -78,7 +95,8 @@ const Player = (props) => {
     return (
         <View style={styles.main} >
             <Video
-                maxBitRate={1000000}
+                onLoad={() => {setCountdown(2); logTraktPlay()}}
+                // maxBitRate={100000}
                 ref={videoRef}
                 paused={paused}
                 width={Dimensions.get('window').width}
