@@ -16,30 +16,31 @@ import Home from './Home';
 import MoviePage from './MoviePage';
 import { Dimensions, View } from 'react-native';
 import Shows from './Shows';
+import Search from './Search';
 
 
 const HomeView = (props) => {
     switch(props.page) {
         case 'Home':
-        return (
-            <Home
-                width={Dimensions.get('window').width - 68} 
-                openVideo={props.openVideo} 
-                openShow={props.openShow}
-                sideRef={props.homeRef} 
-            />)
-            case 'Movie':
-        return (<View />)
-            case 'TV':
-        return (
-            <Shows
-                width={Dimensions.get('window').width - 68} 
-                openVideo={props.openVideo} 
-                openShow={props.openShow}
-                sideRef={props.tvRef}
-            />)
-    case 'Search':
-        return (<View />)
+            return (
+                <Home
+                    width={Dimensions.get('window').width - 68} 
+                    openVideo={props.openVideo} 
+                    openShow={props.openShow}
+                    sideRef={props.homeRef} 
+                />)
+        case 'Movie':
+            return (<View />)
+        case 'TV':
+            return (
+                <Shows
+                    width={Dimensions.get('window').width - 68} 
+                    openVideo={props.openVideo} 
+                    openShow={props.openShow}
+                    sideRef={props.tvRef}
+                />)
+        case 'Search':
+            return (<Search />)
     }
     return (<View></View>)
 }

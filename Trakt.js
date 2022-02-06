@@ -45,6 +45,12 @@ export const getShowEpisodes = async (traktid, dispatch) => {
     return response.data;
 }
 
+export const getShowEpisode = async (traktid, season, episode, userdata, dispatch) => {
+    const response = await axios.get(`https://api.trakt.tv/shows/${traktid}/seasons/${season}/episodes/${episode}`, defaultConfig(userdata));
+    await getImages(response.data.ids.tmdb, response.data.ids.imdb, dispatch, false);
+    return response.data;
+}
+
 export const getTrendingShows = async (userdata, dispatch, state) => {
     const response = await axios.get('https://api.trakt.tv/shows/trending', defaultConfig(userdata));
     return await storeVideoListData(response.data, dispatch, false, state);

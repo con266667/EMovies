@@ -38,7 +38,7 @@ const App = (props) => {
     const [selectedPage, setSelectedPage] = useState('Home');
     const [sidebarActive, setSidebarActive] = useState(false);
 
-    const openVideo = (url, video, episode) => {
+    const openVideo = (url, video, episode, progress) => {
         Navigation.push(props.componentId, {
             component: {
                 name: 'Player',
@@ -51,6 +51,7 @@ const App = (props) => {
                     uri: url,
                     video: video,
                     episode: episode,
+                    progress: progress
                 }
             },
         })

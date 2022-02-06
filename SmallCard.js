@@ -20,7 +20,7 @@ const SmallCard = (props) => {
     }
 
     return (
-        <View key={props.list.title + props.index.toString()}>
+        <View key={props.list.title + props.index.toString() + item().title}>
             <TouchableOpacity
                 hasTVPreferredFocus = {props.isTopRow && props.index === 0}
                 nextFocusLeft = {props.index === 0 ? findNodeHandle(props.sideRef.current) : null}
@@ -38,7 +38,7 @@ const SmallCard = (props) => {
                         props.setLoadingMovie(item());
                         props.getMovie(item());
                     } else {
-                        props.openShow(item());
+                        props.openShow(props.item);
                     }
                 }}
                 ref={onRef}>

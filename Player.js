@@ -24,9 +24,9 @@ const Player = (props) => {
     const [bottomVisibility, setBottomVisibility] = React.useState(true);
     const [countdown, setCountdown] = useState(3);
 
-
     useEffect(() => {
         const lower = setInterval(() => {
+
             if (countdown > 0) {
                 setCountdown(countdown - 1);
             }
@@ -34,8 +34,6 @@ const Player = (props) => {
             if (countdown === 0 && !paused && videoInfo.seekableDuration > 1) {
                 setBottomVisibility(false);
             }
-
-            // console.log(videoInfo.seekableDuration - videoInfo.currentTime);
 
         }, 1000);
 
@@ -59,10 +57,11 @@ const Player = (props) => {
         logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), props.episode);
     }
 
-    const myTVEventHandler = evt => {
+    const myTVEventHandler = evt => {    
         if (evt.eventType != 'focus' && evt.eventType != 'blur') {
             resetTimer();
         }
+
         if (evt.eventType === 'select') {
             if (!paused) {
                 logTraktPause();
@@ -74,11 +73,12 @@ const Player = (props) => {
             if (videoRef !== null) {
                 videoRef.current.seek(videoInfo.currentTime + 10);
             }
-        } else if (evt.type === 'left') {
+        } else if (evt.eventType === 'left') {
             if (videoRef !== null) {
                 videoRef.current.seek(videoInfo.currentTime - 10);
             }
         }
+
         setLastEventType(evt.eventType);
     };
 
@@ -98,7 +98,13 @@ const Player = (props) => {
     return (
         <View style={styles.main} >
             <Video
-                onLoad={() => {setCountdown(2); logTraktPlay()}}
+                onLoad={(video) => {
+                    setCountdown(2); 
+                    logTraktPlay();
+                    if (props.progress !== undefined && props.progress !== 0) {
+                        videoRef.current.seek(parseInt((props.progress / 100) * video.duration));
+                    }
+                }}
                 // maxBitRate={100000}
                 ref={videoRef}
                 paused={paused}

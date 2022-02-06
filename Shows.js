@@ -24,6 +24,7 @@ const Shows = (props) => {
 
   useEffect(() => {
     const setup = async () => {
+      console.log(state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i).sort((a,b) => Date(a.paused_at) - Date(b.paused_at)));
       await getPlayback(currentUser(), dispatch, state);
       if (!isCached('tv')) {
         const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
@@ -31,13 +32,15 @@ const Shows = (props) => {
         const lists = [
           {
             'title': 'Continue Watching',
-            'items': state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i)
+            'items': state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i).sort((a,b) => Date(a.paused_at) - Date(b.paused_at))
           },
           {
               'title': 'Trending',
               'items': trendingShows
           },
         ]
+
+        // console.log(props.lists.map(list => list.items.map(item => item.show)));     
 
         dispatch({ type: 'UPDATE_LISTS', payload: {
             lists: lists,
