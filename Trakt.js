@@ -67,7 +67,6 @@ export const getMovieRecommendations = async (userdata, dispatch, state) => {
 }
 
 export const searchShow = async (title) => {
-    console.log(title);
     const response = await axios.get(`https://api.trakt.tv/search/show?query=${title}`, {headers: { 
         'trakt-api-key': api_key,
         'Content-Type': 'application/json',
@@ -129,7 +128,6 @@ const logObject = (traktObject, progress, movie, episode) => {
 
 export const logPlay = async (userdata, traktObject, progress, movie, episode) => {
     const config = defaultConfig(userdata);
-    console.log(progress);
     const response = await axios.post('https://api.trakt.tv/scrobble/start', logObject(traktObject, progress, movie, episode), config);
     return response.data;
 }
@@ -137,6 +135,5 @@ export const logPlay = async (userdata, traktObject, progress, movie, episode) =
 export const logPause = async (userdata, traktObject, progress, movie, episode) => {
     const config = defaultConfig(userdata);
     const response = await axios.post('https://api.trakt.tv/scrobble/pause', logObject(traktObject, progress, movie, episode), config);
-    console.log(response.data);
     return response.data;
 }

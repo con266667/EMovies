@@ -97,7 +97,7 @@ const Page = (props) => {
         ref={(ref) => setScrollview(ref)}
         >
         {
-          props.lists.map((list) => 
+          props.lists.filter(list => list.items.length > 0).map((list) => 
             <View key={list.title}
             onLayout={(event) => {
               const layout = event.nativeEvent.layout;

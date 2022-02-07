@@ -51,7 +51,6 @@ const Player = (props) => {
             }
 
             if (link !== '' && videoInfo.seekableDuration - videoInfo.currentTime < 15) {
-                console.log("NEXT...")
                 startNextEpisode();
             }
 
@@ -63,7 +62,6 @@ const Player = (props) => {
     }, [countdown, preparing, link]);
 
     const prepareNext = async (next) => {
-        console.log(next);
         const _link = await getAllMoviesLink(props.video.title, props.video.year, next.number, next.season);
         setNextEpisode(next);
         setUrl(_link);
@@ -71,16 +69,17 @@ const Player = (props) => {
 
     const handleLink = (link) => {
         setLink(link);
+        setUrl('');
         console.log(link);
-        setPreparing(false);
     }
 
     const startNextEpisode = () => {
         logTraktPause();
-        setEpisode(nextEpisode);
-        setProgress(0);
+        videoRef.current.seek(0);
         setVideoUrl(link);
         setLink('');
+        setEpisode(nextEpisode);
+        setProgress(0);
     }
 
     const getNextEpisode = (episode) => {

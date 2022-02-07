@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { jsCode, scrapeView } from './scrape';
 
@@ -13,6 +13,7 @@ const Webview = (props) => {
     }
 
     return (
+        <View pointerEvents="none">
         <WebView
             style={styles.webview}
             originWhitelist={['*']}
@@ -27,6 +28,7 @@ const Webview = (props) => {
             }}
             onMessage={event => checkForLink(event.nativeEvent.data)} 
         />
+        </View>
     );
 }
 

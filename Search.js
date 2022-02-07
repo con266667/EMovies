@@ -68,7 +68,6 @@ const Search = (props) => {
                             <TouchableOpacity 
                                 key={index}
                                 onPress={() => {
-                                    console.log(result);
                                     openShow(result.name);
                                 }}>
                                 <Image
