@@ -114,20 +114,21 @@ const Page = (props) => {
                 {
                   list.items.map((item, index) => 
                     <SmallCard
-                        index={index}
-                        isTopRow = {list.title === props.lists[0].title}
-                        itemLocations = {itemLocations}
-                        setSelected = {setSelected}
-                        item = {item}
-                        scrollview = {scrollview}
-                        setLoadingMovie = {setLoadingMovie}
-                        loadingMovie = {loadingMovie}
-                        getMovie = {getMovie}
-                        openShow = {props.openShow}
-                        list = {list}
-                        state = {state}
-                        isLast = {index === list.items.length - 1}
-                        sideRef = {props.sideRef}
+                      key={list.title + index.toString()}
+                      index={index}
+                      isTopRow = {list.title === props.lists[0].title}
+                      itemLocations = {itemLocations}
+                      setSelected = {setSelected}
+                      item = {item}
+                      scrollview = {scrollview}
+                      setLoadingMovie = {setLoadingMovie}
+                      loadingMovie = {loadingMovie}
+                      getMovie = {getMovie}
+                      openShow = {props.openShow}
+                      list = {list}
+                      state = {state}
+                      isLast = {index === list.items.length - 1}
+                      sideRef = {props.sideRef}
                     ></SmallCard>
                   )
                 } 

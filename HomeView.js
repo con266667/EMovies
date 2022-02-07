@@ -40,7 +40,11 @@ const HomeView = (props) => {
                     sideRef={props.tvRef}
                 />)
         case 'Search':
-            return (<Search />)
+            return (
+                <Search 
+                    openShow={props.openShow}
+                />
+            )
     }
     return (<View></View>)
 }

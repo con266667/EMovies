@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Provider, useSelector } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { combineReducers, createStore } from 'redux';
 import PageReducer from './PageReducer';
 import { Navigation } from 'react-native-navigation';
@@ -35,10 +35,11 @@ const backgroundStyle = {
 };
 
 const App = (props) => {
-    const [selectedPage, setSelectedPage] = useState('Home');
+    const state = useSelector(state => state);
+    const dipatch = useDispatch();
     const [sidebarActive, setSidebarActive] = useState(false);
 
-    const openVideo = (url, video, episode, progress) => {
+    const openVideo = (url, video, episode, progress, seasons) => {
         Navigation.push(props.componentId, {
             component: {
                 name: 'Player',
@@ -51,7 +52,8 @@ const App = (props) => {
                     uri: url,
                     video: video,
                     episode: episode,
-                    progress: progress
+                    progress: progress,
+                    seasons: seasons,
                 }
             },
         })
@@ -75,7 +77,8 @@ const App = (props) => {
     }
 
     const setPage = (page) => {
-        setSelectedPage(page);
+        // setSelectedPage(page);
+        dipatch({ type: 'CHANGE_PAGE', payload: page });
         setSidebarActive(true);
     }
 
@@ -85,34 +88,44 @@ const App = (props) => {
     return (
         <View style={styles.content}>
             <View style={styles.sidebar}>
-                <TouchableWithoutFeedback 
+                <TouchableWithoutFeedback
+                    // hasTVPreferredFocus={state.page.page.page === 'Home'}
                     onFocus={() => setPage('Home')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => homeRef.current = ref} >
                     <HomeIcon 
-                        path={selectedPage === 'Home' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'Home' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback 
+                    // hasTVPreferredFocus={state.page.page.page === 'TV'}
                     onFocus={() => setPage('TV')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => tvRef.current = ref} >
                     <TV 
-                        path={selectedPage === 'TV' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'TV' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onFocus={() => setPage('Movies')} onBlur={() => setSidebarActive(false)}>
+                <TouchableWithoutFeedback 
+                    onFocus={() => setPage('Movies')} 
+                    onBlur={() => setSidebarActive(false)}
+                    // hasTVPreferredFocus={state.page.page.page === 'Movies'}
+                    >
                     <Video 
-                        path={selectedPage === 'Movies' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'Movies' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onFocus={() => setPage('Search')} onBlur={() => setSidebarActive(false)}>
+                <TouchableWithoutFeedback 
+                    onFocus={() => setPage('Search')} 
+                    onBlur={() => setSidebarActive(false)}
+                    // hasTVPreferredFocus={state.page.page.page === 'Search'}
+                    >
                     <Search 
-                        path={selectedPage === 'Search' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'Search' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
             </View>
-            <HomeView page={selectedPage} openVideo={openVideo} homeRef={homeRef} tvRef={tvRef} openShow={openShow} />
+            <HomeView page={state.page.page.page} openVideo={openVideo} homeRef={homeRef} tvRef={tvRef} openShow={openShow} />
             { sidebarActive &&
                 <BlurView
                     style={styles.absolute}

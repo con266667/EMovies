@@ -24,8 +24,7 @@ const Shows = (props) => {
 
   useEffect(() => {
     const setup = async () => {
-      console.log(state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i).sort((a,b) => Date(a.paused_at) - Date(b.paused_at)));
-      await getPlayback(currentUser(), dispatch, state);
+      const playback = await getPlayback(currentUser(), dispatch, state);
       if (!isCached('tv')) {
         const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
 
@@ -50,6 +49,17 @@ const Shows = (props) => {
 
         setLists(_ => lists);
       } else {
+        setLists(_ => [
+          {
+            'title': 'Continue Watching',
+            'items': playback.filter(show => show.type === 'episode').sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i).sort((a,b) => Date(a.paused_at) - Date(b.paused_at))
+          },
+          {
+              'title': 'Trending',
+              'items': state.auth.auth.lists[currentUser().uuid]["tv"]["lists"].filter(list => list.title === 'Trending')[0].items
+          },
+        ]);
+
         setLists(_ => state.auth.auth.lists[currentUser().uuid]["tv"]["lists"]);
       }
     }

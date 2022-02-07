@@ -25,6 +25,8 @@ import Player from './Player';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { Dirs } from 'react-native-file-access';
 import TVShow from './TVShow';
+import {enableScreens} from 'react-native-screens';
+enableScreens();
 
 const rootReducer = combineReducers({ page: PageReducer, auth: AuthReducer, videoInfo: VideoInfoReducer});
 

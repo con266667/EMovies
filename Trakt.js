@@ -66,6 +66,15 @@ export const getMovieRecommendations = async (userdata, dispatch, state) => {
     }
 }
 
+export const searchShow = async (title) => {
+    console.log(title);
+    const response = await axios.get(`https://api.trakt.tv/search/show?query=${title}`, {headers: { 
+        'trakt-api-key': api_key,
+        'Content-Type': 'application/json',
+    }});
+    return response.data;
+}
+
 const stripVideos = (videos) => {
     return videos.map(video => stripVideo(video));
 }

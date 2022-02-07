@@ -11,8 +11,10 @@ import ReactNative, {
 import { Navigation } from 'react-native-navigation';
 import Video from 'react-native-video';
 import { useSelector } from 'react-redux';
+import { getAllMoviesLink } from './scrape';
 import { logPause, logPlay, logStop } from './Trakt';
 import { isMovie } from './VideoInfo';
+import Webview from './webview';
 
 
 const Player = (props) => {
@@ -23,6 +25,14 @@ const Player = (props) => {
     const [paused, setPaused] = React.useState(false);
     const [bottomVisibility, setBottomVisibility] = React.useState(true);
     const [countdown, setCountdown] = useState(3);
+    const [videoUrl, setVideoUrl] = useState(props.uri);
+    const [url, setUrl] = useState('');
+    const [link, setLink] = useState('');
+    const [preparing, setPreparing] = useState(false);
+    const [video, setVideo] = useState(props.video);
+    const [episode, setEpisode] = useState(props.episode);
+    const [nextEpisode, setNextEpisode] = useState(null);
+    const [progress, setProgress] = useState(props.progress);
 
     useEffect(() => {
         const lower = setInterval(() => {
@@ -35,12 +45,51 @@ const Player = (props) => {
                 setBottomVisibility(false);
             }
 
+            if (videoInfo.seekableDuration !== 1 && videoInfo.seekableDuration - videoInfo.currentTime < 120 && !preparing && link === '') {
+                setPreparing(true);
+                prepareNext(getNextEpisode(episode));
+            }
+
+            if (link !== '' && videoInfo.seekableDuration - videoInfo.currentTime < 15) {
+                startNextEpisode();
+            }
+
         }, 1000);
 
         return () => {
             clearInterval(lower);
         };
-    }, [countdown]);
+    }, [countdown, preparing, link]);
+
+    const prepareNext = async (next) => {
+        console.log(next);
+        const _link = await getAllMoviesLink(props.video.title, props.video.year, next.number, next.season);
+        setNextEpisode(next);
+        setUrl(_link);
+    }
+
+    const handleLink = (link) => {
+        setLink(link);
+        console.log(link);
+        setPreparing(false);
+    }
+
+    const startNextEpisode = () => {
+        setEpisode(nextEpisode);
+        setProgress(0);
+        setVideoUrl(link);
+        setLink('');
+    }
+
+    const getNextEpisode = (episode) => {
+        if (props.seasons[episode.season].episodes.length > episode.number) {
+            return props.seasons[episode.season].episodes[episode.number];
+        } else if (props.seasons.length > episode.season + 1) {
+            return props.seasons[episode.season + 1].episodes[0];
+        } else {
+            return null;
+        }
+    }
 
     const resetTimer = () => {
         setCountdown(3);
@@ -50,11 +99,11 @@ const Player = (props) => {
     const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
     const logTraktPlay = () => {
-        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), props.episode);
+        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), episode);
     }
 
     const logTraktPause = () => {
-        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), props.episode);
+        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), episode);
     }
 
     const myTVEventHandler = evt => {    
@@ -97,12 +146,14 @@ const Player = (props) => {
 
     return (
         <View style={styles.main} >
+            <Webview handleLink={handleLink} url={url}></Webview>
             <Video
                 onLoad={(video) => {
-                    setCountdown(2); 
+                    setCountdown(2);
+                    setPreparing(false);
                     logTraktPlay();
-                    if (props.progress !== undefined && props.progress !== 0) {
-                        videoRef.current.seek(parseInt((props.progress / 100) * video.duration));
+                    if (progress !== undefined && progress !== 0) {
+                        videoRef.current.seek(parseInt((progress / 100) * video.duration));
                     }
                 }}
                 // maxBitRate={100000}
@@ -111,7 +162,7 @@ const Player = (props) => {
                 width={Dimensions.get('window').width}
                 height={Dimensions.get('window').height}
                 source={{
-                    uri: props.uri,
+                    uri: videoUrl,
                 }}
                 bufferConfig={{
                     minBufferMs: 300000,
