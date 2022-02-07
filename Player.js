@@ -51,6 +51,7 @@ const Player = (props) => {
             }
 
             if (link !== '' && videoInfo.seekableDuration - videoInfo.currentTime < 15) {
+                console.log("NEXT...")
                 startNextEpisode();
             }
 
@@ -75,6 +76,7 @@ const Player = (props) => {
     }
 
     const startNextEpisode = () => {
+        logTraktPause();
         setEpisode(nextEpisode);
         setProgress(0);
         setVideoUrl(link);

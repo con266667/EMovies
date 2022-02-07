@@ -129,6 +129,7 @@ const logObject = (traktObject, progress, movie, episode) => {
 
 export const logPlay = async (userdata, traktObject, progress, movie, episode) => {
     const config = defaultConfig(userdata);
+    console.log(progress);
     const response = await axios.post('https://api.trakt.tv/scrobble/start', logObject(traktObject, progress, movie, episode), config);
     return response.data;
 }
@@ -136,5 +137,6 @@ export const logPlay = async (userdata, traktObject, progress, movie, episode) =
 export const logPause = async (userdata, traktObject, progress, movie, episode) => {
     const config = defaultConfig(userdata);
     const response = await axios.post('https://api.trakt.tv/scrobble/pause', logObject(traktObject, progress, movie, episode), config);
+    console.log(response.data);
     return response.data;
 }

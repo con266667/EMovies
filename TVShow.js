@@ -34,7 +34,7 @@ const TVShow = (props) => {
     setUrl('');
     const _episode = Object.assign({}, loadingEpisode);
     setLoadingEpisode({});
-    props.openVideo(link, show(), _episode, props.show.progress ?? 0, seasons);
+    props.openVideo(link, show(), _episode, playbackEpisode(_episode.season, _episode.number) === null ? 0 : playbackEpisode(_episode.season, _episode.number).progress, seasons);
   }
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
