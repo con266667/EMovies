@@ -87,7 +87,7 @@ const TVShow = (props) => {
   }
 
   return (
-    <View>
+    <View style={{backgroundColor: '#000'}}>
         <Webview url={url} handleLink={handleLink} />
         <Image
             style={styles.backgroundImage}
