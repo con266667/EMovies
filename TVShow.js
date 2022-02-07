@@ -221,7 +221,6 @@ const TVShow = (props) => {
 
 const styles = StyleSheet.create({
     backgroundImage: {
-      color: '#000',
       backgroundColor: '#000',
       opacity: 0.2,
       width: '100%',
