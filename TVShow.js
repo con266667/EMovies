@@ -1,3 +1,4 @@
+import { BlurView } from '@react-native-community/blur';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, Image, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
@@ -95,6 +96,17 @@ const TVShow = (props) => {
     }
   }
 
+  const resumeEpisode = () => {
+    if (
+      playback.length > 0
+      && playback[0] !== undefined
+      && tmdbSeasons.filter(_season => _season.season_number === playback[0].episode.season).length > 0 
+    ) {
+      return tmdbSeasons.filter(_season => _season.season_number === playback[0].episode.season)[0].episodes.filter(_episode => _episode.episode_number === playback[0].episode.number)[0];
+    } 
+    return null;
+  }
+
   return (
     <View style={{backgroundColor: '#000'}}>
         <Webview url={url} handleLink={handleLink} />
@@ -103,6 +115,12 @@ const TVShow = (props) => {
             source={{
                 uri: videoImage(show().ids.imdb, state),
             }} />
+        <BlurView
+            style={styles.blur}
+            overlayColor='#000'
+            blurType="dark"
+            blurAmount={1}
+        />
         <View style={styles.content}>
           <View style={styles.overlay}>
             <Text style={styles.movieTitle}>{show().title}</Text>
@@ -147,6 +165,26 @@ const TVShow = (props) => {
               </View>
             </TouchableWithoutFeedback>
           </View>
+          {
+            (button === 'play' && resumeEpisode() !== null) &&
+            <View style={styles.resumeView}>
+              <Image
+                style={styles.resumeImage}
+                source={
+                  {uri: 'https://image.tmdb.org/t/p/w500/' + resumeEpisode().still_path}
+                } />
+                <View>
+                  <View style={styles.progressBack} width={325} height={5} />
+                  <View style={styles.progress} width={playback[0] !== null ? playback[0].progress * 3.25 : 0} height={5} />
+                </View>
+                <Text style={styles.resumeName}>
+                  {resumeEpisode().name}
+                </Text>
+                <Text style={styles.resumeDescription}>
+                  {resumeEpisode().overview}
+                </Text>
+            </View>
+          }
           <View>
           <ScrollView 
               style={styles.seasons}
@@ -178,7 +216,7 @@ const TVShow = (props) => {
                     >
                     <View>
                       <Image 
-                        style={[styles.seasonImage, {borderWidth: (season.season_number === selectedSeason) ? 3 : 0}]}
+                        style={styles.seasonImage}
                         source={
                           {uri: season.poster_path === null ? 'https://via.placeholder.com/300x450' : 'https://image.tmdb.org/t/p/w300/' + season.poster_path}
                         }
@@ -248,6 +286,9 @@ const styles = StyleSheet.create({
       height: '100%',
       position: 'absolute',
     }, 
+    blur: {
+      position: 'absolute',
+    },
     loadingSmallCard: {
       marginTop: -115,
       marginRight: 200,
@@ -321,6 +362,33 @@ const styles = StyleSheet.create({
         color: '#fff',
         marginBottom: 10,
     },
+    resumeView: {
+      marginTop: 40,
+      marginLeft: 50,
+      width: 400
+    },
+    resumeImage: {
+      width: 350,
+      height: 220,
+      borderRadius: 10,
+    },
+    resumeName: {
+      fontFamily: 'Inter-Bold',
+      fontSize: 20,
+      color: '#fff',
+      marginTop: 10,
+      textShadowColor: 'rgba(0, 0, 0, 1)',
+      textShadowOffset: {width: -1, height: 1},
+      textShadowRadius: 10
+    },
+    resumeDescription: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 16,
+      color: '#fff',
+      textShadowColor: 'rgba(0, 0, 0, 1)',
+      textShadowOffset: {width: -1, height: 1},
+      textShadowRadius: 10
+    }
 });
 
 export default TVShow;
