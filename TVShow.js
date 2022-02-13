@@ -53,7 +53,12 @@ const TVShow = (props) => {
 
   useEffect(() => {
     const getSeasons = async () => {
-        const seasons = await getShowEpisodes(show().ids.trakt, dispatch);
+        var seasons = await getShowEpisodes(show().ids.trakt, dispatch);
+        if (seasons[0].number === 1) {
+          seasons.unshift({
+            number: 0,
+          });
+        }
         setSeasons(seasons);
     }
 
@@ -96,13 +101,39 @@ const TVShow = (props) => {
     }
   }
 
-  const resumeEpisode = () => {
+  const playbackResumeEpisode = () => {
     if (
       playback.length > 0
       && playback[0] !== undefined
-      && tmdbSeasons.filter(_season => _season.season_number === playback[0].episode.season).length > 0 
+      && seasons.length > playback[0].episode.season
     ) {
-      return tmdbSeasons.filter(_season => _season.season_number === playback[0].episode.season)[0].episodes.filter(_episode => _episode.episode_number === playback[0].episode.number)[0];
+      if (playback[0].progress > 0.98) {
+        return getNextEpisode(playback[0].episode);
+      } else {
+        return playback[0].episode;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  const getNextEpisode = (episode) => {
+    if (seasons[episode.season].episodes.length > episode.number) {
+        return seasons[episode.season].episodes[episode.number];
+    } else if (seasons.length > episode.season + 1) {
+        return seasons[episode.season + 1].episodes[0];
+    } else {
+        return null;
+    }
+  }
+
+  const resumeEpisode = () => {
+    if (
+      playbackResumeEpisode() !== null
+      && tmdbSeasons.filter(_season => _season.season_number === playbackResumeEpisode().season).length > 0 
+    ) {
+      var nextEpisode = playbackResumeEpisode();
+      return tmdbSeasons.filter(_season => _season.season_number === nextEpisode.season)[0].episodes.filter(_episode => _episode.episode_number === nextEpisode.number)[0];
     } 
     return null;
   }
@@ -130,14 +161,14 @@ const TVShow = (props) => {
               hasTVPreferredFocus = {true}
               onFocus={() => {setButton('play'); setEpisodeView(false); setSeason(0)}}
               onPress={() => {
-                getShow(show(), props.show.episode === undefined ? seasons[0].episodes[0] : props.show.episode);
+                getShow(show(), playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());
               }}
               onBlur={() => {setButton('')}}
               style={styles.textButton}
             >
               <View>
                 <Text style={[styles.textButton, {opacity: (button === 'play') ? 1 : 0.2}]}>{
-                  playback.length === 0 ? 'Play Season 1 Episode 1' : ('Resume Season ' + playback[0].episode.season + ' Episode ' + playback[0].episode.number)
+                  playbackResumeEpisode() === null ? 'Play Season 1 Episode 1' : ('Resume Season ' + playbackResumeEpisode().season + ' Episode ' + playbackResumeEpisode().number)
                 }</Text>
               </View>
             </TouchableWithoutFeedback>
@@ -173,7 +204,7 @@ const TVShow = (props) => {
                 source={
                   {uri: 'https://image.tmdb.org/t/p/w500/' + resumeEpisode().still_path}
                 } />
-                <View>
+                <View opacity={playback[0] !== null && playback[0].progress < 0.98 ? 1 : 0}>
                   <View style={styles.progressBack} width={325} height={5} />
                   <View style={styles.progress} width={playback[0] !== null ? playback[0].progress * 3.25 : 0} height={5} />
                 </View>
@@ -183,6 +214,11 @@ const TVShow = (props) => {
                 <Text style={styles.resumeDescription}>
                   {resumeEpisode().overview}
                 </Text>
+                <ActivityIndicator 
+                  style={styles.loadingResumeEpisode} 
+                  size={120} color={'#fff'} 
+                  opacity={loadingEpisode === playbackResumeEpisode() ? 1 : 0} 
+                />
             </View>
           }
           <View>
@@ -232,6 +268,7 @@ const TVShow = (props) => {
               style={styles.episodes}
               showsVerticalScrollIndicator={false}
               >
+              <Text style={styles.seasonTitle} > {'Season ' + selectedSeason} </Text>
               {
               ((selectedSeason <= 0 || tmdbSeasons.filter(_season => _season.season_number === selectedSeason).length === 0) ? [] : tmdbSeasons.filter(_season => _season.season_number === selectedSeason)[0].episodes).map((episode, index) => {
                 return (
@@ -292,6 +329,10 @@ const styles = StyleSheet.create({
     loadingSmallCard: {
       marginTop: -115,
       marginRight: 200,
+    },
+    loadingResumeEpisode: {
+      marginTop: -290,
+      marginRight: 50,
     },
     progress: {
       marginTop: -5,

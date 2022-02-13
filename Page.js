@@ -137,7 +137,7 @@ const Page = (props) => {
           )
 
         }
-        
+        <View height={40}></View>
         </ScrollView>
         <WebView
           style={styles.webview}

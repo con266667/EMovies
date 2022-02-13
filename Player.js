@@ -153,7 +153,7 @@ const Player = (props) => {
                     setCountdown(2);
                     setPreparing(false);
                     logTraktPlay();
-                    if (progress !== undefined && progress !== 0) {
+                    if (progress !== undefined && progress !== 0 && progress <= 0.98) {
                         videoRef.current.seek(parseInt((progress / 100) * video.duration));
                     }
                 }}
@@ -166,8 +166,8 @@ const Player = (props) => {
                     uri: videoUrl,
                 }}
                 bufferConfig={{
-                    minBufferMs: 300000,
-                    maxBufferMs: 50000000,
+                    minBufferMs: 500000,
+                    maxBufferMs: 0,
                     bufferForPlaybackAfterRebufferMs: 1000
                 }}
                 style={styles.video}

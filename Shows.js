@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPlayback, getTrendingShows } from './Trakt';
+import { getMostWatchedShows, getPlayback, getRecommendedShows, getTrendingShows } from './Trakt';
 import Page from './Page';
   
 
@@ -18,7 +18,7 @@ const Shows = (props) => {
       || state.auth.auth.lists[currentUser().uuid][page] === undefined
       || state.auth.auth.lists[currentUser().uuid][page]["lists"] === undefined
       || state.auth.auth.lists[currentUser().uuid][page]["lists"].length === 0
-      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 3600000)
+      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 3)
     )
   }
 
@@ -27,6 +27,8 @@ const Shows = (props) => {
       const playback = await getPlayback(currentUser(), dispatch, state);
       if (!isCached('tv')) {
         const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
+        const recommendedShows = await getRecommendedShows(currentUser(), dispatch, state);
+        const mostWatched = await getMostWatchedShows(currentUser(), dispatch, state);
 
         const lists = [
           {
@@ -36,6 +38,14 @@ const Shows = (props) => {
           {
               'title': 'Trending',
               'items': trendingShows
+          },
+          {
+            'title': 'Recommended',
+            'items': recommendedShows   
+          },
+          {
+            'title': 'Most Watched',
+            'items': mostWatched
           },
         ]
 

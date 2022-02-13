@@ -56,9 +56,59 @@ export const getTrendingShows = async (userdata, dispatch, state) => {
     return await storeVideoListData(response.data, dispatch, false, state);
 }
 
+export const getRecommendedShows = async (userdata, dispatch, state) => {
+    const response = await axios.get('https://api.trakt.tv/shows/recommended', defaultConfig(userdata));
+    return await storeVideoListData(response.data, dispatch, false, state);
+}
+
+export const getMostWatchedShows = async (userdata, dispatch, state) => {
+    const response = await axios.get('https://api.trakt.tv/shows/watched', defaultConfig(userdata));
+    return await storeVideoListData(response.data, dispatch, false, state);
+}
+
 export const getMovieRecommendations = async (userdata, dispatch, state) => {
     try {
         const response = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
+        return await storeVideoListData(response.data, dispatch, true, state);
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const getTrendingMovies = async (userdata, dispatch, state) => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/trending', defaultConfig(userdata));
+        return await storeVideoListData(response.data, dispatch, true, state);
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const getPopularMovies = async (userdata, dispatch, state) => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/popular', defaultConfig(userdata));
+        return await storeVideoListData(response.data, dispatch, true, state);
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const getTop10BoxOffice = async (userdata, dispatch, state) => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/boxoffice', defaultConfig(userdata));
+        return await storeVideoListData(response.data, dispatch, true, state);
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const getMovieGenre = async (genre, userdata, dispatch, state) => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/recommended?genres=' + genre, defaultConfig(userdata));
         return await storeVideoListData(response.data, dispatch, true, state);
     } catch (error) {
         console.log(error);

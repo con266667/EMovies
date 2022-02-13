@@ -30,7 +30,7 @@ const SmallCard = (props) => {
                 onFocus={() => {
                     props.setSelected(item());
                     if (props.itemLocations[props.list.title] !== undefined) {
-                        props.scrollview.scrollTo({ x: 0, y: props.itemLocations[props.list.title].y, animated: true });
+                        props.scrollview.scrollTo({ x: 0, y: props.itemLocations[props.list.title].y - 10, animated: true });
                     }
                 }} 
                 onPress={() => {
