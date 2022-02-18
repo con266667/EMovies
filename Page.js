@@ -28,6 +28,7 @@ import axios from 'axios';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { videoImage } from './VideoInfo';
 import SmallCard from './SmallCard';
+import Webview from './webview';
   
 
 const Page = (props) => {
@@ -54,20 +55,17 @@ const Page = (props) => {
     setUrl(link);
   }
 
-  const checkForLink = (html) => {
-    const link = scrapeView(html);
-    if (link != '') {
-      setUrl('');
-      const _movie = Object.assign({}, loadingMovie);
-      setLoadingMovie({});
-      props.openVideo(link, _movie);
-    }
+  const handleLink = (link) => {
+    setUrl('');
+    const _movie = Object.assign({}, loadingMovie);
+    setLoadingMovie({});
+    props.openVideo(link, _movie);
   }
 
   return (
     <View width={props.width}>      
       <Image 
-        source={{ uri: videoImage(selected.ids !== undefined ? selected.ids.imdb : '', state) }}
+        source={{ uri: selected.image ?? selected.videoImage(state) }}
         style={{
           width: Dimensions.get('window').width,
           height: Dimensions.get('window').height * 0.55,
@@ -89,6 +87,7 @@ const Page = (props) => {
         end={{'x': '50w', 'y': '100h'}}
       />
       <Text style={styles.featureTitle}>{selected.title}</Text>
+      <Text style={styles.featureDescription}>{selected.description ?? ''}</Text>
       <Text style={styles.featureYear}>{selected.year ?? ''}</Text>
       <ScrollView
         fadingEdgeLength={50}
@@ -139,19 +138,7 @@ const Page = (props) => {
         }
         <View height={40}></View>
         </ScrollView>
-        <WebView
-          style={styles.webview}
-          originWhitelist={['*']}
-          javaScriptEnabledAndroid={true}
-          userAgent={'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'}
-          useWebKit={true}
-          incognito={true}
-          javaScriptEnabled={true}
-          injectedJavaScript={jsCode}
-          source={{
-            uri: url
-          }}
-          onMessage={event => checkForLink(event.nativeEvent.data)} />
+        <Webview url={url} handleLink={handleLink}></Webview>
     </View>
   );
 };
@@ -190,9 +177,18 @@ const styles = StyleSheet.create({
       fontSize: 40,
       color: '#fff',
     },
+    featureDescription: {
+      position: 'absolute',
+      marginRight: 100,
+      top: 110,
+      left: 0,
+      fontFamily: 'Inter-Light',
+      fontSize: 18,
+      color: '#fff',
+    },
     featureYear: {
       position: 'absolute',
-      top: 75,
+      top: 78,
       left: 0,
       fontFamily: 'Inter-Regular',
       fontSize: 20,

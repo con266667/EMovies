@@ -89,7 +89,7 @@ const App = (props) => {
         <View style={styles.content}>
             <View style={styles.sidebar}>
                 <TouchableWithoutFeedback
-                    // hasTVPreferredFocus={state.page.page.page === 'Home'}
+                    hasTVPreferredFocus={state.page.page.page === 'Home'}
                     onFocus={() => setPage('Home')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => homeRef.current = ref} >
@@ -98,7 +98,7 @@ const App = (props) => {
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback 
-                    // hasTVPreferredFocus={state.page.page.page === 'TV'}
+                    hasTVPreferredFocus={state.page.page.page === 'TV'}
                     onFocus={() => setPage('TV')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => tvRef.current = ref} >
@@ -109,7 +109,7 @@ const App = (props) => {
                 <TouchableWithoutFeedback 
                     onFocus={() => setPage('Movies')} 
                     onBlur={() => setSidebarActive(false)}
-                    // hasTVPreferredFocus={state.page.page.page === 'Movies'}
+                    hasTVPreferredFocus={state.page.page.page === 'Movies'}
                     >
                     <Video 
                         path={state.page.page.page === 'Movies' ? '#fff' : '#666'} 
@@ -118,7 +118,7 @@ const App = (props) => {
                 <TouchableWithoutFeedback 
                     onFocus={() => setPage('Search')} 
                     onBlur={() => setSidebarActive(false)}
-                    // hasTVPreferredFocus={state.page.page.page === 'Search'}
+                    hasTVPreferredFocus={state.page.page.page === 'Search'}
                     >
                     <Search 
                         path={state.page.page.page === 'Search' ? '#fff' : '#666'} 

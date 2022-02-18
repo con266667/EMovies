@@ -20,14 +20,17 @@ const TVShow = (props) => {
   const [loadingEpisode, setLoadingEpisode] = useState({});
   const [seasonRefs, setSeasonRefs] = useState({});
   const [seasons, setSeasons] = useState([]);
-  const [playback, setPlayback] = useState([]);
+  const [playback, setPlayback] = useState(
+    state.auth.auth.watchProgress[state.auth.auth.currentUserUUID]
+    .filter(playback => playback.show !== undefined && playback.show.ids.trakt === props.show.ids.trakt)
+    .sort((a, b) => Date(a.paused_at) - Date(b.paused_at)) ?? []);
   const [tmdbShow, setTmdbShow] = useState(null);
   const [tmdbFetch, setTmdbFetch] = useState(false);
   const [tmdbSeasons, setTmdbSeasons] = useState([]);
 
   const getShow = async (show, episode) => {
-    const link = await getAllMoviesLink(show.title, show.year, episode.number, episode.season);
     setLoadingEpisode(episode);
+    const link = await getAllMoviesLink(show.title, show.year, episode.number, episode.season);
     setUrl(link);
   }
 
@@ -35,25 +38,25 @@ const TVShow = (props) => {
     setUrl('');
     const _episode = Object.assign({}, loadingEpisode);
     setLoadingEpisode({});
-    props.openVideo(link, show(), _episode, playbackEpisode(_episode.season, _episode.number) === null ? 0 : playbackEpisode(_episode.season, _episode.number).progress, seasons);
+    props.openVideo(link, props.show, _episode, playbackEpisode(_episode.season, _episode.number) === null ? 0 : playbackEpisode(_episode.season, _episode.number).progress, seasons);
   }
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
   const getTmdb = async () => {
     setTmdbFetch(true);
-    const tmdb = await getTmdbShow(show().ids.tmdb);
+    const tmdb = await getTmdbShow(props.show.ids.tmdb);
     setTmdbShow(tmdb);
     for (var i = 0; i < tmdb.seasons.length; i++) {
       const season = tmdb.seasons[i];
-      const seasonData = await getTmdbSeason(show().ids.tmdb, season.season_number);
+      const seasonData = await getTmdbSeason(props.show.ids.tmdb, season.season_number);
       setTmdbSeasons(tmdbSeasons => [...tmdbSeasons, seasonData]);
     }
   }
 
   useEffect(() => {
     const getSeasons = async () => {
-        var seasons = await getShowEpisodes(show().ids.trakt, dispatch);
+        var seasons = await getShowEpisodes(props.show.ids.trakt, dispatch);
         if (seasons[0].number === 1) {
           seasons.unshift({
             number: 0,
@@ -107,7 +110,7 @@ const TVShow = (props) => {
       && playback[0] !== undefined
       && seasons.length > playback[0].episode.season
     ) {
-      if (playback[0].progress > 0.98) {
+      if (playback[0].progress > 98) {
         return getNextEpisode(playback[0].episode);
       } else {
         return playback[0].episode;
@@ -144,7 +147,7 @@ const TVShow = (props) => {
         <Image
             style={styles.backgroundImage}
             source={{
-                uri: videoImage(show().ids.imdb, state),
+                uri: props.show.videoImage(state),
             }} />
         <BlurView
             style={styles.blur}
@@ -154,14 +157,14 @@ const TVShow = (props) => {
         />
         <View style={styles.content}>
           <View style={styles.overlay}>
-            <Text style={styles.movieTitle}>{show().title}</Text>
-            <Text style={styles.movieYear}>{show().year}</Text>
+            <Text style={styles.movieTitle}>{props.show.title}</Text>
+            <Text style={styles.movieYear}>{props.show.year}</Text>
             <View height={80}></View>
             <TouchableWithoutFeedback
-              hasTVPreferredFocus = {true}
+              hasTVPreferredFocus = {selectedSeason === 0}
               onFocus={() => {setButton('play'); setEpisodeView(false); setSeason(0)}}
               onPress={() => {
-                getShow(show(), playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());
+                getShow(props.show, playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());
               }}
               onBlur={() => {setButton('')}}
               style={styles.textButton}
@@ -204,7 +207,7 @@ const TVShow = (props) => {
                 source={
                   {uri: 'https://image.tmdb.org/t/p/w500/' + resumeEpisode().still_path}
                 } />
-                <View opacity={playback[0] !== null && playback[0].progress < 0.98 ? 1 : 0}>
+                <View opacity={playback[0] !== null && playback[0].progress < 98 ? 1 : 0}>
                   <View style={styles.progressBack} width={325} height={5} />
                   <View style={styles.progress} width={playback[0] !== null ? playback[0].progress * 3.25 : 0} height={5} />
                 </View>
@@ -230,6 +233,7 @@ const TVShow = (props) => {
               {(tmdbShow === null ? [] : tmdbShow.seasons.filter(season => season.season_number != 0)).map((season, index) => {
                 return (
                   <TouchableOpacity
+                    hasTVPreferredFocus = {selectedSeason === season.season_number}
                     key={index}
                     onFocus={() => {
                         setEpisodeView(true);
@@ -290,8 +294,7 @@ const TVShow = (props) => {
                     <TouchableOpacity
                         // activeOpacity={0.5}
                         onPress={() => {
-                            setLoadingEpisode(seasons[selectedSeason].episodes[index]);
-                            getShow(show(), seasons[selectedSeason].episodes[index]);
+                            getShow(props.show, seasons[selectedSeason].episodes[index]);
                         }}
                         nextFocusLeft={findNodeHandle(seasonRefs[selectedSeason])}
                         ref={(ref) => {

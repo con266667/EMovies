@@ -29,6 +29,7 @@ const Player = (props) => {
     const [url, setUrl] = useState('');
     const [link, setLink] = useState('');
     const [preparing, setPreparing] = useState(false);
+    const [countdownVisible, setCountdownVisible] = useState(false);
     const [video, setVideo] = useState(props.video);
     const [episode, setEpisode] = useState(props.episode);
     const [nextEpisode, setNextEpisode] = useState(null);
@@ -44,16 +45,6 @@ const Player = (props) => {
             if (countdown === 0 && !paused && videoInfo.seekableDuration > 1) {
                 setBottomVisibility(false);
             }
-
-            if (videoInfo.seekableDuration !== 1 && videoInfo.seekableDuration - videoInfo.currentTime < 120 && !preparing && link === '') {
-                setPreparing(true);
-                prepareNext(getNextEpisode(episode));
-            }
-
-            if (link !== '' && videoInfo.seekableDuration - videoInfo.currentTime < 15) {
-                startNextEpisode();
-            }
-
         }, 1000);
 
         return () => {
@@ -100,11 +91,11 @@ const Player = (props) => {
     const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
     const logTraktPlay = () => {
-        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), episode);
+        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.isMovie, episode);
     }
 
     const logTraktPause = () => {
-        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, isMovie(props.video.ids.imdb, state), episode);
+        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.isMovie, episode);
     }
 
     const myTVEventHandler = evt => {    
@@ -145,6 +136,24 @@ const Player = (props) => {
         return hDisplay + mDisplay + ":" + sDisplay; 
     }
 
+    progressUpdate = (info) => {
+        setVideoInfo(info);
+
+        console.log(info.seekableDuration - info.currentTime);
+        const timeLeft = info.seekableDuration - info.currentTime;
+        console.log(30 - timeLeft);
+        console.log(timeLeft - 15);
+
+        if (info.seekableDuration !== 1 && info.seekableDuration - info.currentTime < 120 && !preparing && link === '') {
+            setPreparing(true);
+            prepareNext(getNextEpisode(episode));
+        }
+
+        if (link !== '' && info.seekableDuration - info.currentTime < 15) {
+            startNextEpisode();
+        }
+    }
+
     return (
         <View style={styles.main} >
             <Webview handleLink={handleLink} url={url}></Webview>
@@ -153,7 +162,7 @@ const Player = (props) => {
                     setCountdown(2);
                     setPreparing(false);
                     logTraktPlay();
-                    if (progress !== undefined && progress !== 0 && progress <= 0.98) {
+                    if (progress !== undefined && progress !== 0 && progress <= 98) {
                         videoRef.current.seek(parseInt((progress / 100) * video.duration));
                     }
                 }}
@@ -172,8 +181,19 @@ const Player = (props) => {
                 }}
                 style={styles.video}
                 resizeMode='contain'
-                onProgress={(e) => setVideoInfo(e)}
+                onProgress={progressUpdate}
             />
+            {
+            videoInfo.seekableDuration - videoInfo.currentTime < 30 &&
+            <>
+            <View style={styles.nextCountdownBack}>
+                <View style={styles.nextCountdownFront} flex={(30 - (videoInfo.seekableDuration - videoInfo.currentTime))}></View>
+                <View flex={(videoInfo.seekableDuration - videoInfo.currentTime - 15)}></View>
+            </View>
+            <Text style={styles.nextCountdownText} >NEXT</Text>
+            </>
+            }
+            {/* <View style={styles.nextCountdownBack} width={100} backgroundColor={'#999'}></View> */}
             {bottomVisibility &&
             <>
             <View style={styles.progressBarOuter} />
@@ -211,6 +231,34 @@ const Player = (props) => {
             bottom: 0,
             right: 0,
         },
+        nextCountdownBack: {
+            flexDirection: 'row',
+            backgroundColor: '#fff',
+            position: 'absolute',
+            borderRadius: 10,
+            bottom: 50,
+            right: 50,
+            width: 150,
+            height: 40,
+        },
+        nextCountdownFront: {
+            backgroundColor: '#999',
+            borderTopLeftRadius: 10,
+            borderBottomStartRadius: 10,
+        },
+        nextCountdownText: {
+            position: 'absolute',
+            bottom: 50,
+            right: 50,
+            fontSize: 20,
+            width: 150,
+            height: 40,
+            color: '#000',
+            backgroundColor: 'transparent',
+            textAlign: 'center',
+            fontFamily: 'Inter-Bold',
+            paddingTop: 5,
+        },  
         progressBarOuter: {
             position: 'absolute',
             width: '88%',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMostWatchedShows, getPlayback, getRecommendedShows, getTrendingShows } from './Trakt';
+import { getActionShows, getComedyShows, getPlayback, getRecentlyWatchedShows, getTopShows } from './Trakt';
 import Page from './Page';
   
 
@@ -18,7 +18,7 @@ const Shows = (props) => {
       || state.auth.auth.lists[currentUser().uuid][page] === undefined
       || state.auth.auth.lists[currentUser().uuid][page]["lists"] === undefined
       || state.auth.auth.lists[currentUser().uuid][page]["lists"].length === 0
-      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 3)
+      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 36000)
     )
   }
 
@@ -26,27 +26,47 @@ const Shows = (props) => {
     const setup = async () => {
       const playback = await getPlayback(currentUser(), dispatch, state);
       if (!isCached('tv')) {
-        const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
-        const recommendedShows = await getRecommendedShows(currentUser(), dispatch, state);
-        const mostWatched = await getMostWatchedShows(currentUser(), dispatch, state);
+        // const trendingShows = await getTrendingShows(currentUser(), dispatch, state);
+        // const recommendedShows = await getRecommendedShows(currentUser(), dispatch, state);
+        // const mostWatched = await getMostWatchedShows(currentUser(), dispatch, state);
+        const recentlyWatchedShows = await getRecentlyWatchedShows(currentUser(), dispatch);
+        const topShows = await getTopShows();
+        const actionShows = await getActionShows();
+        const comedyShows = await getComedyShows();
 
         const lists = [
           {
-            'title': 'Continue Watching',
-            'items': state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i).sort((a,b) => Date(a.paused_at) - Date(b.paused_at))
+            'title': 'Recently Watched',
+            'items': recentlyWatchedShows
           },
           {
-              'title': 'Trending',
-              'items': trendingShows
+            'title': 'Top Shows',
+            'items': topShows
           },
           {
-            'title': 'Recommended',
-            'items': recommendedShows   
+            'title': 'Action',
+            'items': actionShows
           },
           {
-            'title': 'Most Watched',
-            'items': mostWatched
-          },
+            'title': 'Comedy',
+            'items': comedyShows
+          }
+          // {
+          //   'title': 'Continue Watching',
+          //   'items': state.auth.auth.watchProgress[currentUser().uuid].filter(show => show.type === 'episode').sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i).sort((a,b) => Date(a.paused_at) - Date(b.paused_at))
+          // },
+          // {
+          //     'title': 'Trending',
+          //     'items': trendingShows
+          // },
+          // {
+          //   'title': 'Recommended',
+          //   'items': recommendedShows   
+          // },
+          // {
+          //   'title': 'Most Watched',
+          //   'items': mostWatched
+          // },
         ]
 
         // console.log(props.lists.map(list => list.items.map(item => item.show)));     
