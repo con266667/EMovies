@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactNative, {
     Image,
-    SafeAreaView,
     StatusBar,
     StyleSheet,
     Text,

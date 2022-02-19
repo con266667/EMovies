@@ -18,7 +18,7 @@ const Shows = (props) => {
       || state.auth.auth.lists[currentUser().uuid][page] === undefined
       || state.auth.auth.lists[currentUser().uuid][page]["lists"] === undefined
       || state.auth.auth.lists[currentUser().uuid][page]["lists"].length === 0
-      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 36000)
+      || ((Date.now() - state.auth.auth.lists[currentUser().uuid][page]["lastUpdated"]) > 3600000)
     )
   }
 

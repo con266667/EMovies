@@ -4,12 +4,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Navigation } from "react-native-navigation";
 import { useDispatch } from "react-redux";
 
-function TraktOverlay({ componentId, userCode, interval, deviceCode }) {
+const  TraktOverlay = (props) => {
     const [hasStartedInerval, setHasStartedInerval] = React.useState(false);
-
-    const dismiss = () => {
-        Navigation.dismissOverlay(componentId);
-    };
 
     const dispatch = useDispatch();
     const addUserData = data => dispatch({ type: 'ADD_USER_DATA', payload: data });
@@ -28,7 +24,7 @@ function TraktOverlay({ componentId, userCode, interval, deviceCode }) {
                 }
 
                 const response = axios.post(
-                    'https://api.trakt.tv/oauth/device/token' + client_id_and_secret +'code=' + deviceCode,
+                    'https://api.trakt.tv/oauth/device/token' + client_id_and_secret +'code=' + props.deviceCode,
                 );
 
                 response.then((res) => {
@@ -44,7 +40,7 @@ function TraktOverlay({ componentId, userCode, interval, deviceCode }) {
                     console.log("Not ready yet");
                 });
                 tries++;
-            }, interval * 1000);
+            }, props.interval * 1000);
         }
     });
 
@@ -71,15 +67,15 @@ function TraktOverlay({ componentId, userCode, interval, deviceCode }) {
 
   return (
     <View style={styles.root}>
-    <View style={styles.alert}>
-    <Text style={styles.title}>Sign in to Trakt</Text>
-    <Text style={styles.code}>Go to trakt.tv/activate</Text>
-    <Text style={styles.code}>{userCode}</Text>
-    
-    <TouchableOpacity onPress={dismiss}>
-        <Text style={styles.cancel}>Cancel</Text>
-    </TouchableOpacity>
-    </View>
+        <View style={styles.alert}>
+        <Text style={styles.title}>Sign in to Trakt</Text>
+        <Text style={styles.code}>Go to trakt.tv/activate</Text>
+        <Text style={styles.code}>{props.userCode}</Text>
+        
+        <TouchableOpacity onPress={dismiss}>
+            <Text style={styles.cancel}>Cancel</Text>
+        </TouchableOpacity>
+        </View>
     </View>
   );
 }
@@ -115,13 +111,5 @@ const styles = StyleSheet.create({
         marginTop: 12,
     }
 });
-
-TraktOverlay.options = (props) => {
-  return {
-    overlay: {
-      interceptTouchOutside: true,
-    },
-  };
-};
 
 export default TraktOverlay;

@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
- import React, { useEffect } from 'react';
+ import React, { useEffect, useState } from 'react';
  import { Provider, useDispatch, useSelector } from 'react-redux';
  import { createStore } from 'redux';
  import PageReducer from './PageReducer';
@@ -17,6 +17,7 @@
  import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
  import userLoginDetails, { getMoviesWatched, getPlayback } from './Trakt';
 import axios from 'axios';
+import TraktOverlay from './TraktOverlay';
  
  const Login = () => {
     const state = useSelector(state => state);
@@ -46,7 +47,7 @@ import axios from 'axios';
     return (
         <View style={styles.container}>
             {state.auth.auth.users.map((user) => 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.option} 
                     key={user.uuid}
                     onPress={() => {
@@ -67,10 +68,14 @@ import axios from 'axios';
                 </TouchableOpacity>
             )}
            
-            <TouchableOpacity style={styles.option}
+            <TouchableOpacity 
+                hasTVPreferredFocus={true}
+                style={styles.option}
                 onPress={() => {loginDetails()}} >
                 <Text style={styles.optionText}>Add User</Text>
             </TouchableOpacity>
+
+            <TraktOverlay deviceCode={deviceCode} userCode={userCode} interval={interval} ></TraktOverlay>
         </View>
     )
  }
