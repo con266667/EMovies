@@ -96,7 +96,7 @@ const Page = (props) => {
       setSelectedYoutubeKey(_youtubeKey);
       setTimeout(() => {
         setPlayTrailer(true);
-      }, 5000);
+      }, 4500);
     },4500));
   }
 
@@ -174,6 +174,11 @@ const Page = (props) => {
         }}>
         <YoutubePlayer
           videoId={selectedYoutubeKey}
+          initialPlayerParams={{
+            showinfo: 0,
+            controls: 0,
+            rel: 0,
+          }}
           useLocalHTML={true}
           play={true}
           width={Dimensions.get('window').width - 450}
@@ -217,7 +222,7 @@ const Page = (props) => {
           end={{'x': '50w', 'y': '100h'}}
         />
         <Text style={styles.featureTitle}>{selected.title}</Text>
-        <Text style={styles.featureDescription}>{(selected.description ?? '').substring(0, 200) ?? ''}</Text>
+        <Text style={styles.featureDescription}>{(selected.description ?? '').substring(0, 200).split('.')[0] + '.' ?? ''}</Text>
         <Text style={styles.featureYear}>{selected.year ?? ''}</Text>
         <Webview url={url} handleLink={handleLink}></Webview>
     </View> : <ActivityIndicator />
