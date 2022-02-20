@@ -14,18 +14,11 @@ import ReactNative, {
     findNodeHandle,
   } from 'react-native';
 
-import JSSoup from 'jssoup'; 
-import Header from './Header';
-import { DarkenBlend, DstOverComposition, EllipticalGradient, Emboss, HardLightBlend, ImageBackgroundPlaceholder, LinearGradient, QuadGradient, RadialGradient, RectangularGradient, ScreenBlend, SoftLightBlend, SrcOverComposition } from 'react-native-image-filter-kit';
+import { LinearGradient } from 'react-native-image-filter-kit';
 import { useDispatch, useSelector } from 'react-redux';
-import { getImages } from './tmdb';
-import { getAllMoviesLink, getVHLink, jsCode, scrapeView } from './scrape';
-import WebView from 'react-native-webview';
-import { getMovieRecommendations, getMoviesWatched } from './Trakt';
-import axios from 'axios';
-import { videoImage } from './VideoInfo';
+import { getAllMoviesLink, getVHLink, jsCode, scrapeView } from '../../../utils/Scrape';
 import SmallCard from './SmallCard';
-import Webview from './webview';
+import Webview from '../../../utils/Webview';
   
 
 const Page = (props) => {
@@ -45,7 +38,19 @@ const Page = (props) => {
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
 
-  const [cardRefs, setCardRefs] = useState({});
+  useEffect(() => {
+    if (
+      props.lists !== undefined &&
+      props.lists.length !== 0 &&
+      props.lists[0].items !== undefined &&
+      props.lists[0].items.length !== 0 &&
+      props.lists[0].items[0] !== undefined
+    ) {
+      setSelected(props.lists[0].items[0]);
+    }
+  });
+
+
 
   const getMovie = async (movie) => {
     const link = await getAllMoviesLink(movie.title, movie.year);

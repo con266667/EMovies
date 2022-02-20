@@ -1,7 +1,6 @@
 import axios from "axios";
-import { getAllMoviesLink, getVHLink } from "./scrape";
 import { getImages } from "./tmdb";
-import Video from "./Video";
+import Video from "../classes/Video";
 
 const api_key = 'bd40bc484afbea19226a29277101fe86a25269479697e2e959cb3a3d25a8f819';
 

@@ -2,11 +2,10 @@ import { BlurView } from '@react-native-community/blur';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, Image, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllMoviesLink } from './scrape';
-import { getTmdbSeason, getTmdbShow } from './tmdb';
-import { getPlayback, getShowEpisodes } from './Trakt';
-import { videoImage } from './VideoInfo';
-import Webview from './webview';
+import { getAllMoviesLink } from '../utils/Scrape';
+import { getTmdbSeason, getTmdbShow } from '../utils/tmdb';
+import { getPlayback, getShowEpisodes } from '../utils/Trakt';
+import Webview from '../utils/Webview';
   
 
 const TVShow = (props) => {

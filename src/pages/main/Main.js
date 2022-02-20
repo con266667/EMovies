@@ -10,10 +10,10 @@
  import { Provider, useDispatch, useSelector } from 'react-redux';
  import HomeView from './HomeView';
  import { Dimensions, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
- import Search from './assets/icons/search.svg';
- import TV from './assets/icons/tv.svg';
- import Video from './assets/icons/video.svg';
- import HomeIcon from './assets/icons/home.svg';
+ import Search from '../../../assets/icons/search.svg';
+ import TV from '../../../assets/icons/tv.svg';
+ import Video from '../../../assets/icons/video.svg';
+ import HomeIcon from '../../../assets/icons/home.svg';
  import { BlurView } from "@react-native-community/blur";
  
  const Main = ({ navigation }) => {

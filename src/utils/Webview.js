@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { jsCode, scrapeView } from './scrape';
+import { jsCode, scrapeView } from './Scrape';
 
 const Webview = (props) => {
 

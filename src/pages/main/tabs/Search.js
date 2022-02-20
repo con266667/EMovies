@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { searchMulti } from "./tmdb";
-import { searchShow } from "./Trakt";
+import { searchMulti } from "../../../utils/tmdb";
+import { searchShow } from "../../../utils/Trakt";
 
 const Search = (props) => {
     const [search, setSearch] = useState("");

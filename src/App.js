@@ -6,20 +6,20 @@
  * @flow strict-local
  */
 
-import React, { useEffect, useState } from 'react';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { Provider } from 'react-redux';
 import { combineReducers, createStore } from 'redux';
-import PageReducer from './PageReducer';
-import AuthReducer from './AuthReducer';
+import PageReducer from './state/PageReducer';
+import AuthReducer from './state/AuthReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import VideoInfoReducer from './VideoInfoReducer';
+import VideoInfoReducer from './state/VideoInfoReducer';
 import { persistStore, persistReducer } from 'redux-persist';
 import { NavigationContainer } from '@react-navigation/native';
 import { PersistGate } from 'redux-persist/integration/react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Login from './Login';
-import Main from './Main';
-import Player from './Player';
+import Login from './pages/login/Login';
+import Main from './pages/main/Main';
+import Player from './pages/Player';
  
 const rootReducer = combineReducers({ page: PageReducer, auth: AuthReducer, videoInfo: VideoInfoReducer});
 

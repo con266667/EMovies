@@ -7,15 +7,10 @@
  */
 
 import React from 'react';
-import { Provider, useSelector } from 'react-redux';
-import { createStore } from 'redux';
-import PageReducer from './PageReducer';
-import Header from './Header';
-import Home from './Home';
-import MoviePage from './MoviePage';
+import Home from './tabs/Home';
 import { Dimensions, View } from 'react-native';
-import Shows from './Shows';
-import Search from './Search';
+import Shows from './tabs/Shows';
+import Search from './tabs/Search';
 
 
 const HomeView = (props) => {

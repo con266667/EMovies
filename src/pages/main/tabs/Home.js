@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getActionMovies, getComedyMovies, getMovieGenre, getMovieRecommendations, getMoviesWatched, getPopularMovies, getTop10BoxOffice, getTopMovies, getTrendingMovies } from './Trakt';
-import Page from './Page';
-import Video from './Video';
+import { getActionMovies, getComedyMovies, getTopMovies } from '../../../utils/Trakt';
+import Page from '../components/Page';
   
 
 const Home = (props) => {

@@ -6,15 +6,9 @@
  * @flow strict-local
  */
 
-import React, { useEffect, useState } from 'react';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { createStore } from 'redux';
-import PageReducer from './PageReducer';
-import Header from './Header';
-import Home from './Home';
-import MoviePage from './MoviePage';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import userLoginDetails, { getMoviesWatched, getPlayback } from './Trakt';
 import axios from 'axios';
 import TraktOverlay from './TraktOverlay';
  

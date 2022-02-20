@@ -10,10 +10,9 @@ import ReactNative, {
   } from 'react-native';
 import Video from 'react-native-video';
 import { useSelector } from 'react-redux';
-import { getAllMoviesLink } from './scrape';
-import { logPause, logPlay, logStop } from './Trakt';
-import { isMovie } from './VideoInfo';
-import Webview from './webview';
+import { getAllMoviesLink } from '../utils/Scrape';
+import { logPause, logPlay } from '../utils/Trakt';
+import Webview from '../utils/Webview';
 
 
 const Player = (props) => {

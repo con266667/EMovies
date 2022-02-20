@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from "react";
 import { ActivityIndicator, findNodeHandle, Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { videoImage } from "./VideoInfo";
 
 const SmallCard = (props) => {
     const touchableRef = useRef(null);
