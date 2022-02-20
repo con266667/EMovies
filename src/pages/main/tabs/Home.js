@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getActionMovies, getComedyMovies, getTopMovies } from '../../../utils/Trakt';
 import Page from '../components/Page';
@@ -9,6 +10,7 @@ const Home = (props) => {
   const dispatch = useDispatch();
 
   const [lists, setLists] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
@@ -52,6 +54,7 @@ const Home = (props) => {
           }})
 
           setLists(_ => lists);
+          setIsLoading(_ => false);
       } else {
         console.log("Using cached data");
         setLists(_ => state.auth.auth.lists[currentUser().uuid]["home"]["lists"]);
@@ -61,10 +64,10 @@ const Home = (props) => {
     if (lists.length === 0) {
      setup();
     }
-  }, [setLists]);
+  }, [setLists, setIsLoading]);
 
   return (
-    <Page lists={lists} {...props}></Page>
+    <Page lists={lists} {...props}/>
   );
 };
 

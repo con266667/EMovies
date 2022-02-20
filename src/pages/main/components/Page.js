@@ -40,6 +40,7 @@ const Page = (props) => {
 
   useEffect(() => {
     if (
+      selected.title === 'Loading...' &&
       props.lists !== undefined &&
       props.lists.length !== 0 &&
       props.lists[0].items !== undefined &&
@@ -48,9 +49,7 @@ const Page = (props) => {
     ) {
       setSelected(props.lists[0].items[0]);
     }
-  });
-
-
+  }, [selected]);
 
   const getMovie = async (movie) => {
     const link = await getAllMoviesLink(movie.title, movie.year);
@@ -70,6 +69,7 @@ const Page = (props) => {
   }
 
   return (
+    props.lists.length > 0 ?
     <View width={props.width}>      
       <Image 
         source={{ uri: selected.image ?? selected.videoImage(state) }}
@@ -146,7 +146,7 @@ const Page = (props) => {
         <View height={40}></View>
         </ScrollView>
         <Webview url={url} handleLink={handleLink}></Webview>
-    </View>
+    </View> : <ActivityIndicator />
   );
 };
 
