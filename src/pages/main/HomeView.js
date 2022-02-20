@@ -15,13 +15,19 @@ import Page from './components/Page';
 const HomeView = (props) => {
     const state = useSelector(state => state)
 
-    console.log(state.auth.auth.lists[state.auth.auth.currentUserUUID]['home']['lists']);
+    const list = (page) => {
+        try {
+            return state.auth.auth.lists[state.auth.auth.currentUserUUID][page]['lists'];
+        } catch (_) {
+            return [];
+        }
+    }
 
     switch(props.page) {
         case 'Home':
             return (
                 <Page 
-                    lists={state.auth.auth.lists[state.auth.auth.currentUserUUID]['home']['lists']}  
+                    lists={list('home')}  
                     navigation={props.navigation}
                     width={Dimensions.get('window').width - 68} 
                     sideRef={props.homeRef} />
@@ -31,7 +37,7 @@ const HomeView = (props) => {
         case 'TV':
             return (
                 <Page 
-                    lists={state.auth.auth.lists[state.auth.auth.currentUserUUID]['tv']['lists']}  
+                    lists={list('tv')}  
                     navigation={props.navigation}
                     width={Dimensions.get('window').width - 68} 
                     sideRef={props.tvRef} />

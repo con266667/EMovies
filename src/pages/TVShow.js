@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllMoviesLink } from '../utils/Scrape';
 import { getTmdbSeason, getTmdbShow } from '../utils/tmdb';
 import { getPlayback, getShowEpisodes } from '../utils/Trakt';
+import Episodes from './Episodes';
+import Seasons from './Seasons';
 import Webview from '../utils/Webview';
   
 
@@ -39,6 +41,7 @@ const TVShow = (props) => {
     setLoadingEpisode({});
     props.navigation.navigate('Player', {
       video: _episode,
+      progress: playback.filter(playback => playback.episode.ids.trakt === _episode.ids.trakt)[0].progress,
       url: link,
     });
   }
@@ -174,8 +177,7 @@ const TVShow = (props) => {
               onBlur={() => {setEpisodeView(true); setSeason(0)}}
               nextFocusRight={seasonRefs[1] === undefined ? null : findNodeHandle(seasonRefs[1].current)}
               ref={(ref) => {episodeButtonRef.current = ref}}
-              style={styles.textButton}
-            >
+              style={styles.textButton}>
             <View>
               <Text style={[styles.textButton, {opacity: (button === 'episodes') ? 1 : 0.2}]}>Episodes</Text>
             </View>
@@ -218,100 +220,29 @@ const TVShow = (props) => {
                 />
             </View>
           }
-          <View>
-          <ScrollView 
-              style={styles.seasons}
-              showsVerticalScrollIndicator={false}
-              opacity={(button === 'episodes' || episodeView) ? 1 : 0}
-              >
-              {(tmdbShow === null ? [] : tmdbShow.seasons.filter(season => season.season_number != 0)).map((season, index) => {
-                return (
-                  <TouchableOpacity
-                    hasTVPreferredFocus = {selectedSeason === season.season_number}
-                    key={index}
-                    onFocus={() => {
-                        setEpisodeView(true);
-                        setSeason(season.season_number);
-                    }}
-                    onBlur={() => {
-                        setEpisodeView(false);
-                    }}
-                    nextFocusLeft={findNodeHandle(episodeButtonRef.current)}
-                    ref={(ref) => {
-                        // if (index === 0) {
-                        //     season1Ref.current = ref;
-                        // }
-
-                        if (seasonRefs[season.season_number] === undefined) {
-                            seasonRefs[season.season_number] = ref;
-                        }
-                    }}
-                    // nextFocusRight={firstEpisodeRef}
-                    >
-                    <View>
-                      <Image 
-                        style={styles.seasonImage}
-                        source={
-                          {uri: season.poster_path === null ? 'https://via.placeholder.com/300x450' : 'https://image.tmdb.org/t/p/w300/' + season.poster_path}
-                        }
-                      />
-                    </View>
-                  </TouchableOpacity>
-                )
-              })}
-          </ScrollView>
-          </View>
-          { ((button === 'episodes' || episodeView) && selectedSeason !== 0) &&
-          <ScrollView 
-              style={styles.episodes}
-              showsVerticalScrollIndicator={false}
-              >
-              <Text style={styles.seasonName} > {'Season ' + selectedSeason} </Text>
-              {
-              ((selectedSeason <= 0 || tmdbSeasons.filter(_season => _season.season_number === selectedSeason).length === 0) ? [] : tmdbSeasons.filter(_season => _season.season_number === selectedSeason)[0].episodes).map((episode, index) => {
-                return (
-                  <View key={index} >
-                    <Image
-                      style={styles.episodeImage}
-                      source={
-                        {uri: episode.still_path === null ? 'https://via.placeholder.com/300x450' : 'https://image.tmdb.org/t/p/w500/' + episode.still_path}
-                      } />
-                    <View>
-                      <View style={styles.progressBack} opacity={playbackEpisode(selectedSeason, index + 1) !== null ? 1 : 0} width={275} height={5} />
-                      <View style={styles.progress} width={playbackEpisode(selectedSeason, index + 1) !== null ? playbackEpisode(selectedSeason, index + 1).progress * 2.75 : 0} height={5} />
-                    </View>
-                    <ActivityIndicator 
-                      style={styles.loadingSmallCard} 
-                      size={80} color={'#fff'} 
-                      opacity={loadingEpisode === seasons[selectedSeason].episodes[index] ? 1 : 0} 
-                      />
-                    <TouchableOpacity
-                        // activeOpacity={0.5}
-                        onPress={() => {
-                            getShow(show, seasons[selectedSeason].episodes[index]);
-                        }}
-                        nextFocusLeft={findNodeHandle(seasonRefs[selectedSeason])}
-                        ref={(ref) => {
-                            // if (index === 0 && firstEpisodeRefs[episode.season] === undefined) {
-                            //     console.log(episode.season)
-                            //     firstEpisodeRefs[episode.season] = ref;
-                            // }
-                        }}
-                        >
-                        <View>
-                          <Text style={styles.seasonTitle}>{(index + 1).toString() + ": " + episode.name}</Text>
-                        </View>
-                    </TouchableOpacity>
-                  </View>
-                )
-              })}
-          </ScrollView>
-          }
+          <Seasons 
+            button={button} 
+            tmdbShow={tmdbShow}
+            setEpisodeView={setEpisodeView}
+            setSeason={setSeason}
+            episodeButtonRef={episodeButtonRef}seasonName
+            seasonRefs={seasonRefs}
+          />
+          <Episodes 
+            button={button} 
+            loadingEpisode={loadingEpisode} 
+            playbackEpisode={playbackEpisode} 
+            tmdbSeasons={tmdbSeasons} 
+            getShow={getShow} 
+            show={show} 
+            seasons={seasons} 
+            episodeView={episodeView} 
+            selectedSeason={selectedSeason} 
+            seasonRefs={seasonRefs} />
         </View>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
     content: {
@@ -377,7 +308,7 @@ const styles = StyleSheet.create({
         height: '80%',
     },
     episodes: {
-        marginLeft: 20,
+        marginLeft: 10,
     },
     seasonImage: {
       width: 100,

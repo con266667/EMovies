@@ -17,8 +17,10 @@ import ReactNative, {
 import { LinearGradient } from 'react-native-image-filter-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllMoviesLink, getVHLink, jsCode, scrapeView } from '../../../utils/Scrape';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import SmallCard from './SmallCard';
 import Webview from '../../../utils/Webview';
+import { trailerId } from '../../../utils/Trailer';
   
 
 const Page = (props) => {
@@ -31,12 +33,15 @@ const Page = (props) => {
     year: '',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
+  const [selectedYoutubeKey, setSelectedYoutubeKey] = useState('');
   const [url, setUrl] = useState('');
   const [loadingMovie, setLoadingMovie] = useState({
     title: 'Loading...',
     year: '',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
+  const [playTimeout, setPlayTimeout] = useState(null);
+  const [playTrailer, setPlayTrailer] = useState(false);
 
 
   useEffect(() => {
@@ -73,6 +78,28 @@ const Page = (props) => {
     });
   }
 
+  const youtubeKey = async (selected) => {
+    return await trailerId(selected);
+  }
+
+  const clearYoutubeKey = () => {
+    setSelectedYoutubeKey('');
+    setPlayTrailer(false);
+    clearTimeout(playTimeout);
+  }
+
+  const selectVideo = async (video) => {
+    setPlayTrailer(false);
+    setSelected(video);
+    const _youtubeKey = await youtubeKey(video);
+    setPlayTimeout(setTimeout(() => {
+      setSelectedYoutubeKey(_youtubeKey);
+      setTimeout(() => {
+        setPlayTrailer(true);
+      }, 5000);
+    },4500));
+  }
+
   return (
     props.lists.length > 0 ?
     <View width={props.width}>      
@@ -80,9 +107,9 @@ const Page = (props) => {
       <Image 
         source={{ uri: selected.backdrop.replace('original', 'w1280') }}
         style={{
-          width: Dimensions.get('window').width - 200,
+          width: Dimensions.get('window').width - 400,
           height: Dimensions.get('window').height * 0.48,
-          marginLeft: 200
+          marginLeft: 400
         }} /> : 
         <View style={{
           width: Dimensions.get('window').width,
@@ -117,7 +144,7 @@ const Page = (props) => {
                       index={index}
                       isTopRow = {list.title === props.lists[0].title}
                       itemLocations = {itemLocations}
-                      setSelected = {setSelected}
+                      setSelected = {selectVideo}
                       item = {item}
                       scrollview = {scrollview}
                       setLoadingMovie = {setLoadingMovie}
@@ -127,6 +154,7 @@ const Page = (props) => {
                       list = {list}
                       state = {state}
                       isLast = {index === list.items.length - 1}
+                      clearYoutubeKey = {clearYoutubeKey}
                       sideRef = {props.sideRef} />
                   )
                 } 
@@ -137,26 +165,50 @@ const Page = (props) => {
         }
         <View height={40}></View>
         </ScrollView>
-        <LinearGradient 
-          colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)', 'rgba(18, 18, 18, 1)']}
-          stops={[0, 0.5, 1]}
+        {
+        selectedYoutubeKey !== '' ?
+        <View pointerEvents='none' opacity={playTrailer ? 1 : 0} style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+        }}>
+        <YoutubePlayer
+          videoId={selectedYoutubeKey}
+          useLocalHTML={true}
+          play={true}
+          width={Dimensions.get('window').width - 450}
+          height={Dimensions.get('window').height * 0.47}
+          onChangeState={(e) => {if (e === 'ended') {setPlayTrailer(false)}}}
+          webViewProps={{
+            pointerEvents: 'none'
+          }}
           style={{
             position: 'absolute',
-            width: Dimensions.get('window').width - 200,
+            top: -100,
+            right: 0,
+          }}/>
+        </View> : <View />
+      }
+        <LinearGradient 
+          colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)']}
+          style={{
+            position: 'absolute',
+            width: Dimensions.get('window').width - 300,
             height: Dimensions.get('window').height * 0.48,
             top: 0,
-            right: 0,
+            marginLeft: 330,
           }}
-          start={{'x': '0w', 'y': '50h'}}
-          end={{'x': '100w', 'y': '50h'}}
+          start={{'x': '10w', 'y': '50h'}}
+          end={{'x': '30w', 'y': '50h'}}
           // style={styles.feature}
         />
+
         <LinearGradient
           colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)']}
           stops={[0, 1]}
           style={{
             position: 'absolute',
-            width: Dimensions.get('window').width - 200,
+            width: Dimensions.get('window').width - 400,
             height: Dimensions.get('window').height * 0.48,
             top: 0,
             right: 0,
@@ -165,7 +217,7 @@ const Page = (props) => {
           end={{'x': '50w', 'y': '100h'}}
         />
         <Text style={styles.featureTitle}>{selected.title}</Text>
-        <Text style={styles.featureDescription}>{selected.description ?? ''}</Text>
+        <Text style={styles.featureDescription}>{(selected.description ?? '').substring(0, 200) ?? ''}</Text>
         <Text style={styles.featureYear}>{selected.year ?? ''}</Text>
         <Webview url={url} handleLink={handleLink}></Webview>
     </View> : <ActivityIndicator />
@@ -208,7 +260,7 @@ const styles = StyleSheet.create({
     },
     featureDescription: {
       position: 'absolute',
-      marginRight: 100,
+      marginRight: 500,
       top: 110,
       left: 0,
       fontFamily: 'Inter-Light',

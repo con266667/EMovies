@@ -28,7 +28,6 @@ const Player = (props) => {
     const [url, setUrl] = useState('');
     const [link, setLink] = useState('');
     const [preparing, setPreparing] = useState(false);
-    const [countdownVisible, setCountdownVisible] = useState(false);
     const [episode, setEpisode] = useState(props.episode);
     const [nextEpisode, setNextEpisode] = useState(null);
     const [progress, setProgress] = useState(props.progress);
@@ -133,7 +132,7 @@ const Player = (props) => {
         return hDisplay + mDisplay + ":" + sDisplay; 
     }
 
-    progressUpdate = (info) => {
+    const progressUpdate = (info) => {
         setVideoInfo(info);
 
         if (info.seekableDuration !== 1 && info.seekableDuration - info.currentTime < 120 && !preparing && link === '') {
@@ -182,7 +181,7 @@ const Player = (props) => {
                 <View style={styles.nextCountdownFront} flex={(30 - (videoInfo.seekableDuration - videoInfo.currentTime))}></View>
                 <View flex={(videoInfo.seekableDuration - videoInfo.currentTime - 15)}></View>
             </View>
-            <Text style={styles.nextCountdownText} >NEXT</Text>
+            <Text style={styles.nextCountdownText}>NEXT</Text>
             </>
             }
             {/* <View style={styles.nextCountdownBack} width={100} backgroundColor={'#999'}></View> */}
@@ -193,13 +192,13 @@ const Player = (props) => {
             <View 
                 style={styles.progressBarBuffer} 
                 width={Dimensions.get('window').width * ((videoInfo.playableDuration / videoInfo.seekableDuration) * 0.89)}
-            ></View>
+            />
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback>
             <View 
                 style={styles.progressBarInner} 
                 width={Dimensions.get('window').width * ((videoInfo.currentTime / videoInfo.seekableDuration) * 0.89)}
-            ></View>
+            />
             </TouchableWithoutFeedback>
             <Text style={styles.timeLeft}>{timeLeftString(videoInfo.seekableDuration - videoInfo.currentTime)}</Text>
             </>
