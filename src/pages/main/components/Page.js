@@ -54,7 +54,6 @@ const Page = (props) => {
 
   const getMovie = async (movie) => {
     const link = await getAllMoviesLink(movie.title, movie.year);
-    console.log(link);
     setUrl(link);
   }
 
