@@ -38,6 +38,7 @@ const Page = (props) => {
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
 
+
   useEffect(() => {
     if (
       selected.title === 'Loading...' &&

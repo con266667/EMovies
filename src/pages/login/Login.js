@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import axios from 'axios';
 import TraktOverlay from './TraktOverlay';
+import { loadLists } from '../../utils/MainLogin';
  
  const Login = ({ navigation }) => {
     const state = useSelector(state => state);
@@ -29,21 +30,16 @@ import TraktOverlay from './TraktOverlay';
             setDeviceCode(json['device_code']);
             setInterval(json['interval']);
             setShowOverlay(true);
-
-            // Navigation.showOverlay({
-            //     component: {
-            //         name: 'TraktOverlay',
-            //         id: 'Main',
-            //         passProps: {
-            //             userCode: json['user_code'],
-            //             interval: json['interval'],
-            //             deviceCode: json['device_code'],
-            //         }
-            //     }
-            // });
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const loadUser = async (user) => {
+        dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
+        await loadLists(user, dispatch);
+        console.log(state.auth.auth.lists[user.uuid]['home']['lists'][0]['items']);
+        navigation.navigate('Main');
     }
 
     return (
@@ -52,11 +48,7 @@ import TraktOverlay from './TraktOverlay';
                 <TouchableOpacity 
                     style={styles.option} 
                     key={user.uuid}
-                    onPress={() => {
-                        dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
-                        navigation.navigate('Main')
-                    }
-                    }>
+                    onPress={() => loadUser(user)}>
                     <Text style={styles.optionText}>{user.username}</Text>
                 </TouchableOpacity>
             )}
