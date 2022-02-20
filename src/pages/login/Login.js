@@ -54,18 +54,7 @@ import TraktOverlay from './TraktOverlay';
                     key={user.uuid}
                     onPress={() => {
                         dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
-                        // getPlayback(user, dispatch, state);
                         navigation.navigate('Main')
-                        // Navigation.push('Login', {
-                        //     component: {
-                        //     name: 'Main',
-                        //     options: {
-                        //         topBar: {
-                        //             visible: false,
-                        //         }
-                        //     }
-                        //     },
-                        // })
                     }
                     }>
                     <Text style={styles.optionText}>{user.username}</Text>
@@ -87,7 +76,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        backgroundColor: 'rgb(48, 48, 48)',
+        backgroundColor: 'rgb(18, 18, 18)',
     },
     option: {
         backgroundColor: '#fff',

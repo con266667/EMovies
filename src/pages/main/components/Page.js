@@ -62,44 +62,33 @@ const Page = (props) => {
     const _movie = Object.assign({}, loadingMovie);
     setLoadingMovie({});
     // props.openVideo(link, _movie);
-    console.log(link);
     props.navigation.navigate('Player', {
       url: link,
     });
   }
 
+  // console.log(selected.videoImage(state));
+
   return (
     props.lists.length > 0 ?
     <View width={props.width}>      
+      { selected.title !== 'Loading...' ?
       <Image 
-        source={{ uri: selected.image ?? selected.videoImage(state) }}
+        source={{ uri: selected.videoImage(state).replace('original', 'w1280') }}
         style={{
+          width: Dimensions.get('window').width - 200,
+          height: Dimensions.get('window').height * 0.48,
+          marginLeft: 200
+        }} /> : 
+        <View style={{
           width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height * 0.55,
-        }} />
-      <LinearGradient 
-        colors={['rgba(48, 48, 48, 1)', 'rgba(0, 0, 0, 0)', 'rgba(48, 48, 48, 1)']}
-        stops={[0, 0.5, 1]}
-        width={Dimensions.get('window').width}
-        height={Dimensions.get('window').height * 0.55}
-        style={styles.feature}
-      />
-      <LinearGradient
-        colors={['rgba(48, 48, 48, 1)', 'rgba(0, 0, 0, 0)']}
-        stops={[0, 1]}
-        width={Dimensions.get('window').width}
-        height={Dimensions.get('window').height * 0.55}
-        style={styles.feature}
-        start={{'x': '50w', 'y': '0h'}}
-        end={{'x': '50w', 'y': '100h'}}
-      />
-      <Text style={styles.featureTitle}>{selected.title}</Text>
-      <Text style={styles.featureDescription}>{selected.description ?? ''}</Text>
-      <Text style={styles.featureYear}>{selected.year ?? ''}</Text>
+          height: Dimensions.get('window').height * 0.48,
+        }}></View>
+      }
       <ScrollView
         fadingEdgeLength={50}
         showsVerticalScrollIndicator={false}
-        height={Dimensions.get('window').height * 0.5}
+        height={Dimensions.get('window').height * 0.6}
         ref={(ref) => setScrollview(ref)}
         >
         {
@@ -116,7 +105,7 @@ const Page = (props) => {
                 style={styles.showRow} 
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
-                height={150}>
+                height={180}>
                 {
                   list.items.map((item, index) => 
                     <SmallCard
@@ -145,6 +134,36 @@ const Page = (props) => {
         }
         <View height={40}></View>
         </ScrollView>
+        <LinearGradient 
+          colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)', 'rgba(18, 18, 18, 1)']}
+          stops={[0, 0.5, 1]}
+          style={{
+            position: 'absolute',
+            width: Dimensions.get('window').width - 200,
+            height: Dimensions.get('window').height * 0.48,
+            top: 0,
+            right: 0,
+          }}
+          start={{'x': '0w', 'y': '50h'}}
+          end={{'x': '100w', 'y': '50h'}}
+          // style={styles.feature}
+        />
+        <LinearGradient
+          colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)']}
+          stops={[0, 1]}
+          style={{
+            position: 'absolute',
+            width: Dimensions.get('window').width - 200,
+            height: Dimensions.get('window').height * 0.48,
+            top: 0,
+            right: 0,
+          }}
+          start={{'x': '50w', 'y': '0h'}}
+          end={{'x': '50w', 'y': '100h'}}
+        />
+        <Text style={styles.featureTitle}>{selected.title}</Text>
+        <Text style={styles.featureDescription}>{selected.description ?? ''}</Text>
+        <Text style={styles.featureYear}>{selected.year ?? ''}</Text>
         <Webview url={url} handleLink={handleLink}></Webview>
     </View> : <ActivityIndicator />
   );
@@ -204,17 +223,10 @@ const styles = StyleSheet.create({
     subtitle: {
       fontFamily: 'Inter-SemiBold',
       fontSize: 20,
-      color: '#fff',
-      opacity: 0.2,
+      color: '#888',
     },
     showRow: {
       flexDirection: 'row',
-    },
-    smallCard: {
-      height: 130,
-      width: 200,
-      borderRadius: 15,
-      marginRight: 25,
     },
     webview: {
       opacity: 0,

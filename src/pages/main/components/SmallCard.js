@@ -26,11 +26,9 @@ const SmallCard = (props) => {
                 }} 
                 onPress={() => {
                     if (props.item.isMovie) {
-                        console.log("Loading movie: " + props.item.title);
                         props.setLoadingMovie(props.item);
                         props.getMovie(props.item);
                     } else {
-                        console.log("Opening show: " + props.item.title);
                         props.openShow(props.item);
                     }
                 }}
@@ -38,10 +36,10 @@ const SmallCard = (props) => {
             <Image
                 style={styles.smallCard}
                 source={{
-                    uri: props.item.videoImage(props.state),
+                    uri: props.item.posterImage(props.state).replace('original', 'w780'),
                 }} />
-            <View style={styles.progressBack} opacity={(props.item.progress(props.state) < 95 && props.item.progress(props.state) != 0) ? 1 : 0} width={175} height={5} />
-            <View style={styles.progress} width={props.item.progress(props.state) < 95 ? props.item.progress(props.state) * 1.75 : 0} height={5} />
+            {/* <View style={styles.progressBack} opacity={(props.item.progress(props.state) < 95 && props.item.progress(props.state) != 0) ? 1 : 0} width={175} height={5} />
+            <View style={styles.progress} width={props.item.progress(props.state) < 95 ? props.item.progress(props.state) * 1.75 : 0} height={5} /> */}
             </TouchableOpacity>
             
             <ActivityIndicator 
@@ -68,9 +66,9 @@ const styles = StyleSheet.create({
         height: 5,
     },
     smallCard: {
-        height: 130,
-        width: 200,
-        borderRadius: 15,
+        height: 160,
+        width: 105,
+        borderRadius: 8,
         marginRight: 25,
     },
     loadingSmallCard: {

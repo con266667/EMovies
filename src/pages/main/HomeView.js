@@ -12,7 +12,6 @@ import { Dimensions, View } from 'react-native';
 import Shows from './tabs/Shows';
 import Search from './tabs/Search';
 
-
 const HomeView = (props) => {
     switch(props.page) {
         case 'Home':
@@ -20,8 +19,6 @@ const HomeView = (props) => {
                 <Home
                     navigation={props.navigation}
                     width={Dimensions.get('window').width - 68} 
-                    openVideo={props.openVideo} 
-                    openShow={props.openShow}
                     sideRef={props.homeRef} 
                 />)
         case 'Movie':
@@ -31,8 +28,6 @@ const HomeView = (props) => {
                 <Shows
                     navigation={props.navigation}
                     width={Dimensions.get('window').width - 68} 
-                    openVideo={props.openVideo} 
-                    openShow={props.openShow}
                     sideRef={props.tvRef}
                 />)
         case 'Search':

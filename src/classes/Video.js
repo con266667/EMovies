@@ -23,6 +23,18 @@ export default class Video {
         return 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg';
     }
 
+    posterImage (state) {
+        if (this.poster != '') {
+            return this.poster;
+        }
+        if (state.videoInfo.videoInfo.images[this.ids.imdb] !== undefined) {
+            if (state.videoInfo.videoInfo.images[this.ids.imdb].posters.length > 0) {
+                return 'https://image.tmdb.org/t/p/original' + state.videoInfo.videoInfo.images[this.ids.imdb].posters[0].file_path;
+            }
+        }
+        return 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg';
+    }
+
     progress (state) {
         if (
             state.auth.auth.watchProgress !== undefined

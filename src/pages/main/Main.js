@@ -22,15 +22,8 @@
     const [sidebarActive, setSidebarActive] = useState(false);
 
     const setPage = (page) => {
-        // setSelectedPage(page);
         dipatch({ type: 'CHANGE_PAGE', payload: page });
         setSidebarActive(true);
-    }
-
-    const openVideo = (video) => {
-    }
-
-    const openShow = (show) => {
     }
  
     const homeRef = useRef(null);
@@ -40,8 +33,7 @@
         <View style={styles.content}>
             <View style={styles.sidebar}>
                 <TouchableWithoutFeedback
-                    // hasTVPreferredFocus={state.page.page.page === 'Home'}
-                    onPress={() => setPage('Home')}
+                    hasTVPreferredFocus={state.page.page.page === 'Home'}
                     onFocus={() => setPage('Home')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => homeRef.current = ref} >
@@ -50,7 +42,7 @@
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback 
-                    // hasTVPreferredFocus={state.page.page.page === 'TV'}
+                    hasTVPreferredFocus={state.page.page.page === 'TV'}
                     onFocus={() => setPage('TV')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => tvRef.current = ref} >
@@ -61,8 +53,7 @@
                 <TouchableWithoutFeedback 
                     onFocus={() => setPage('Movies')} 
                     onBlur={() => setSidebarActive(false)}
-                    // hasTVPreferredFocus={state.page.page.page === 'Movies'}
-                    >
+                    hasTVPreferredFocus={state.page.page.page === 'Movies'} >
                     <Video 
                         path={state.page.page.page === 'Movies' ? '#fff' : '#666'} 
                         style={styles.icon} />
@@ -70,28 +61,34 @@
                 <TouchableWithoutFeedback 
                     onFocus={() => setPage('Search')} 
                     onBlur={() => setSidebarActive(false)}
-                    // hasTVPreferredFocus={state.page.page.page === 'Search'}
-                    >
+                    hasTVPreferredFocus={state.page.page.page === 'Search'} >
                     <Search 
                         path={state.page.page.page === 'Search' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
             </View>
-            <HomeView page={state.page.page.page} navigation={navigation} openVideo={openVideo} homeRef={homeRef} tvRef={tvRef} openShow={openShow} />
-            { sidebarActive &&
+            <HomeView page={state.page.page.page} navigation={navigation} homeRef={homeRef} tvRef={tvRef} />
+            {/* <View opacity={sidebarActive ? 1 : 0} style={styles.over}>
                 <BlurView
                     style={styles.absolute}
                     overlayColor=''
                     blurType="dark"
                     blurAmount={3}
                 />
-            }
+            </View> */}
         </View>
     );
  };
  
  
  const styles = StyleSheet.create({
+    over: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+    },
      absolute: {
          position: "absolute",
          top: 0,
@@ -111,7 +108,7 @@
      content: {
          flex: 1,
          flexDirection: 'row',
-         backgroundColor: 'rgb(48,48,48)',
+         backgroundColor: 'rgb(18, 18, 18)',
      },
      sidebar: {
          justifyContent: 'center',
