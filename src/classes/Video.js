@@ -45,4 +45,8 @@ export default class Video {
         }
         return 0;
     }
+
+    get valid () {
+        return this.title !== '' && this.year !== '' && this.poster !== '' && this.backdrop !== '';
+    }
 }

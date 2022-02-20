@@ -6,22 +6,22 @@ export const loadLists = async (currentUser, dispatch) => {
 }
 
 const loadHome = async (currentUser, dispatch) => {
-    var trendingMovies = await getTopMovies();
-    var actionMovies = await getActionMovies();
-    var comedyMovies = await getComedyMovies();
+    const trendingMovies = await getTopMovies();
+    const actionMovies = await getActionMovies();
+    const comedyMovies = await getComedyMovies();
 
     const lists = [
         {
             'title': 'Trending',
-            'items': trendingMovies
+            'items': trendingMovies.filter(v => v !== undefined && v.valid)
         },
         {
             'title': 'Action',
-            'items': actionMovies
+            'items': actionMovies.filter(v => v !== undefined && v.valid)
         },
         {
             'title': 'Comedy',
-            'items': comedyMovies
+            'items': comedyMovies.filter(v => v !== undefined && v.valid)
         }
     ]
 
@@ -41,19 +41,19 @@ const loadTV = async (currentUser, dispatch) => {
     const lists = [
       {
         'title': 'Recently Watched',
-        'items': recentlyWatchedShows
+        'items': recentlyWatchedShows.filter(v => v !== undefined && v.valid)
       },
       {
         'title': 'Top Shows',
-        'items': topShows
+        'items': topShows.filter(v => v !== undefined && v.valid)
       },
       {
         'title': 'Action',
-        'items': actionShows
+        'items': actionShows.filter(v => v !== undefined && v.valid)
       },
       {
         'title': 'Comedy',
-        'items': comedyShows
+        'items': comedyShows.filter(v => v !== undefined && v.valid)
       }
     ]
 

@@ -9,7 +9,8 @@ import Webview from '../utils/Webview';
   
 
 const TVShow = (props) => {
-  const state = useSelector(state => state)
+  const state = useSelector(state => state);
+  const show = props.route.params.show;
   const dispatch = useDispatch();
   const [button, setButton] = useState('play');
   const [url, setUrl] = useState('');
@@ -20,7 +21,7 @@ const TVShow = (props) => {
   const [seasons, setSeasons] = useState([]);
   const [playback, setPlayback] = useState(
     state.auth.auth.watchProgress[state.auth.auth.currentUserUUID]
-    .filter(playback => playback.show !== undefined && playback.show.ids.trakt === props.show.ids.trakt)
+    .filter(playback => playback.show !== undefined && playback.show.ids.trakt === show.ids.trakt)
     .sort((a, b) => Date(a.paused_at) - Date(b.paused_at)) ?? []);
   const [tmdbShow, setTmdbShow] = useState(null);
   const [tmdbFetch, setTmdbFetch] = useState(false);
@@ -36,25 +37,28 @@ const TVShow = (props) => {
     setUrl('');
     const _episode = Object.assign({}, loadingEpisode);
     setLoadingEpisode({});
-    props.openVideo(link, props.show, _episode, playbackEpisode(_episode.season, _episode.number) === null ? 0 : playbackEpisode(_episode.season, _episode.number).progress, seasons);
+    props.navigation.navigate('Player', {
+      video: _episode,
+      url: link,
+    });
   }
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
   const getTmdb = async () => {
     setTmdbFetch(true);
-    const tmdb = await getTmdbShow(props.show.ids.tmdb);
+    const tmdb = await getTmdbShow(show.ids.tmdb);
     setTmdbShow(tmdb);
     for (var i = 0; i < tmdb.seasons.length; i++) {
       const season = tmdb.seasons[i];
-      const seasonData = await getTmdbSeason(props.show.ids.tmdb, season.season_number);
+      const seasonData = await getTmdbSeason(show.ids.tmdb, season.season_number);
       setTmdbSeasons(tmdbSeasons => [...tmdbSeasons, seasonData]);
     }
   }
 
   useEffect(() => {
     const getSeasons = async () => {
-        var seasons = await getShowEpisodes(props.show.ids.trakt, dispatch);
+        var seasons = await getShowEpisodes(show.ids.trakt, dispatch);
         if (seasons[0].number === 1) {
           seasons.unshift({
             number: 0,
@@ -65,7 +69,7 @@ const TVShow = (props) => {
 
     const getPlaybackData = async () => {
       var _playback = await getPlayback(currentUser(), dispatch, state);
-      _playback = _playback.filter(playback => playback.show !== undefined && playback.show.ids.trakt === show().ids.trakt).sort((a, b) => Date(a.paused_at) - Date(b.paused_at));
+      _playback = _playback.filter(playback => playback.show !== undefined && playback.show.ids.trakt === show.ids.trakt).sort((a, b) => Date(a.paused_at) - Date(b.paused_at));
       setPlayback(_playback);
     }
 
@@ -84,14 +88,6 @@ const TVShow = (props) => {
   }, [seasons, playback, tmdbFetch]);
 
   const episodeButtonRef = useRef(null);
-
-  const show = () => {
-    if (props.show.type === undefined) {
-        return props.show;
-    } else {
-        return props.show[props.show.type === 'movie' ? 'movie' : 'show'];
-    }
-  }
 
   const playbackEpisode = (season, episode) => {
     const _playback = playback.filter(_episode => _episode.episode.season === season && _episode.episode.number === episode);
@@ -145,7 +141,7 @@ const TVShow = (props) => {
         <Image
             style={styles.backgroundImage}
             source={{
-                uri: props.show.videoImage(state),
+                uri: show.backdrop,
             }} />
         <BlurView
             style={styles.blur}
@@ -155,14 +151,14 @@ const TVShow = (props) => {
         />
         <View style={styles.content}>
           <View style={styles.overlay}>
-            <Text style={styles.movieTitle}>{props.show.title}</Text>
-            <Text style={styles.movieYear}>{props.show.year}</Text>
+            <Text style={styles.movieTitle}>{show.title}</Text>
+            <Text style={styles.movieYear}>{show.year}</Text>
             <View height={80}></View>
             <TouchableWithoutFeedback
               hasTVPreferredFocus = {selectedSeason === 0}
               onFocus={() => {setButton('play'); setEpisodeView(false); setSeason(0)}}
               onPress={() => {
-                getShow(props.show, playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());
+                getShow(show, playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());
               }}
               onBlur={() => {setButton('')}}
               style={styles.textButton}
@@ -188,7 +184,7 @@ const TVShow = (props) => {
               onFocus={() => {setButton('back'); setEpisodeView(false); setSeason(0)}}
               onBlur={() => {setButton('')}}
               onPress={() => {
-                Navigation.pop(props.componentId);
+                props.navigation.goBack();
               }}
               style={styles.textButton}
             >
@@ -270,7 +266,7 @@ const TVShow = (props) => {
               style={styles.episodes}
               showsVerticalScrollIndicator={false}
               >
-              <Text style={styles.seasonTitle} > {'Season ' + selectedSeason} </Text>
+              <Text style={styles.seasonName} > {'Season ' + selectedSeason} </Text>
               {
               ((selectedSeason <= 0 || tmdbSeasons.filter(_season => _season.season_number === selectedSeason).length === 0) ? [] : tmdbSeasons.filter(_season => _season.season_number === selectedSeason)[0].episodes).map((episode, index) => {
                 return (
@@ -292,7 +288,7 @@ const TVShow = (props) => {
                     <TouchableOpacity
                         // activeOpacity={0.5}
                         onPress={() => {
-                            getShow(props.show, seasons[selectedSeason].episodes[index]);
+                            getShow(show, seasons[selectedSeason].episodes[index]);
                         }}
                         nextFocusLeft={findNodeHandle(seasonRefs[selectedSeason])}
                         ref={(ref) => {
@@ -397,12 +393,19 @@ const styles = StyleSheet.create({
       marginBottom: 8,
       marginTop: 10,
     },
+    seasonName: {
+      marginTop: 32,
+      fontFamily: 'Inter-Bold',
+      fontSize: 25,
+      color: '#fff',
+      marginBottom: 10,
+    },
     seasonTitle: {
       marginTop: 32,
-        fontFamily: 'Inter-Bold',
-        fontSize: 16,
-        color: '#fff',
-        marginBottom: 10,
+      fontFamily: 'Inter-Bold',
+      fontSize: 16,
+      color: '#fff',
+      marginBottom: 10,
     },
     resumeView: {
       marginTop: 40,

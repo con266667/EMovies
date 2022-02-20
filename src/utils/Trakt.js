@@ -83,16 +83,6 @@ const traktIdLookup = async (id, type, isMovie) => {
     return response.data;
 }
 
-export const getMoviesWatched = async (userdata, dispatch, state) => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/sync/history/movies', defaultConfig(userdata));
-        return await storeVideoListData(response.data, dispatch, true, state);
-    } catch (error) {
-        console.log(error);
-        return [];
-    }
-}
-
 export const getPlayback = async (userdata, dispatch, state) => {
     const response = await axios.get('https://api.trakt.tv/sync/playback/shows', defaultConfig(userdata));
 
@@ -131,71 +121,6 @@ export const getTopShows = async () => {
     return await getTmdbUrl('https://api.themoviedb.org/3/discover/tv?api_key=6ba0d338722bb3a7b301fdb45104bfcd', false);
 }
 
-export const getTrendingShows = async (userdata, dispatch, state) => {
-    const response = await axios.get('https://api.trakt.tv/shows/trending', defaultConfig(userdata));
-    return await storeVideoListData(response.data, dispatch, false, state);
-}
-
-export const getRecommendedShows = async (userdata, dispatch, state) => {
-    const response = await axios.get('https://api.trakt.tv/shows/recommended', defaultConfig(userdata));
-    return await storeVideoListData(response.data, dispatch, false, state);
-}
-
-export const getMostWatchedShows = async (userdata, dispatch, state) => {
-    const response = await axios.get('https://api.trakt.tv/shows/watched', defaultConfig(userdata));
-    return await storeVideoListData(response.data, dispatch, false, state);
-}
-
-export const getMovieRecommendations = async (userdata, dispatch, state) => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
-        return await storeVideoListData(response.data, dispatch, true, state);
-    } catch (error) {
-        console.log(error);
-        return [];
-    }
-}
-
-export const getTrendingMovies = async (userdata, dispatch, state) => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/movies/trending', defaultConfig(userdata));
-        return await storeVideoListData(response.data, dispatch, true, state);
-    } catch (error) {
-        console.log(error);
-        return [];
-    }
-}
-
-export const getPopularMovies = async (userdata, dispatch, state) => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/movies/popular', defaultConfig(userdata));
-        return await storeVideoListData(response.data, dispatch, true, state);
-    } catch (error) {
-        console.log(error);
-        return [];
-    }
-}
-
-export const getTop10BoxOffice = async (userdata, dispatch, state) => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/movies/boxoffice', defaultConfig(userdata));
-        return await storeVideoListData(response.data, dispatch, true, state);
-    } catch (error) {
-        console.log(error);
-        return [];
-    }
-}
-
-// export const getMovieGenre = async (genre, userdata, dispatch, state) => {
-//     try {
-//         const response = await axios.get('https://api.trakt.tv/movies/recommended?genres=' + genre, defaultConfig(userdata));
-//         return await storeVideoListData(response.data, dispatch, true, state);
-//     } catch (error) {
-//         console.log(error);
-//         return [];
-//     }
-// }
-
 export const searchShow = async (title) => {
     const response = await axios.get(`https://api.trakt.tv/search/show?query=${title}`, {headers: { 
         'trakt-api-key': api_key,
@@ -233,25 +158,9 @@ const storeVideoListData = async (list, aremovies) => {
     return Promise.all(videos.map(video => videoObjectFromTrakt(video, aremovies)));
 }
 
-const storeIsMovie = (video, ismovie, dispatch) => {
-    dispatch({ type: 'ADD_IS_MOVIE', payload: {
-        'id': video.ids.imdb,
-        'isMovie': ismovie,
-    }});
-}
-
 const getTmdbInfo = async (tmdbid, isMovie) => {
     const response = await axios.get(`https://api.themoviedb.org/3/${isMovie ? 'movie' : 'tv'}/${tmdbid}?api_key=6ba0d338722bb3a7b301fdb45104bfcd&language=en-US`);
     return response.data;
-}
-
-const getImagesFromVideo = async (video, dispatch, movie, state) => {
-    if (state.videoInfo.videoInfo.images[video.ids.imdb] !== undefined) {
-        return state.videoInfo.videoInfo.images[video.ids.imdb];
-    }
-    
-    const images = await getImages(video['ids']['tmdb'], video['ids']['imdb'], dispatch, movie);
-    return images;
 }
 
 const logObject = (traktObject, progress, movie, episode) => {

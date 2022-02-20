@@ -38,7 +38,6 @@ import { loadLists } from '../../utils/MainLogin';
     const loadUser = async (user) => {
         dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
         await loadLists(user, dispatch);
-        console.log(state.auth.auth.lists[user.uuid]['home']['lists'][0]['items']);
         navigation.navigate('Main');
     }
 

@@ -36,7 +36,7 @@ const SmallCard = (props) => {
             <Image
                 style={styles.smallCard}
                 source={{
-                    uri: props.item.posterImage(props.state).replace('original', 'w500'),
+                    uri: props.item.poster.replace('original', 'w500'),
                 }} />
             {/* <View style={styles.progressBack} opacity={(props.item.progress(props.state) < 95 && props.item.progress(props.state) != 0) ? 1 : 0} width={175} height={5} />
             <View style={styles.progress} width={props.item.progress(props.state) < 95 ? props.item.progress(props.state) * 1.75 : 0} height={5} /> */}

@@ -58,24 +58,28 @@ const Page = (props) => {
     setUrl(link);
   }
 
+  const openShow = async (show) => {
+    props.navigation.navigate('TVShow', {
+      show: show
+    })
+  }
+
   const handleLink = (link) => {
     setUrl('');
-    const _movie = Object.assign({}, loadingMovie);
+    const _video = Object.assign({}, loadingMovie);
     setLoadingMovie({});
-    // props.openVideo(link, _movie);
     props.navigation.navigate('Player', {
+      video: _video,
       url: link,
     });
   }
-
-  // console.log(selected.videoImage(state));
 
   return (
     props.lists.length > 0 ?
     <View width={props.width}>      
       { selected.title !== 'Loading...' ?
       <Image 
-        source={{ uri: selected.videoImage(state).replace('original', 'w1280') }}
+        source={{ uri: selected.backdrop.replace('original', 'w1280') }}
         style={{
           width: Dimensions.get('window').width - 200,
           height: Dimensions.get('window').height * 0.48,
@@ -120,12 +124,11 @@ const Page = (props) => {
                       setLoadingMovie = {setLoadingMovie}
                       loadingMovie = {loadingMovie}
                       getMovie = {getMovie}
-                      openShow = {props.openShow}
+                      openShow = {openShow}
                       list = {list}
                       state = {state}
                       isLast = {index === list.items.length - 1}
-                      sideRef = {props.sideRef}
-                    ></SmallCard>
+                      sideRef = {props.sideRef} />
                   )
                 } 
               </ScrollView>

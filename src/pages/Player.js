@@ -29,7 +29,6 @@ const Player = (props) => {
     const [link, setLink] = useState('');
     const [preparing, setPreparing] = useState(false);
     const [countdownVisible, setCountdownVisible] = useState(false);
-    const [video, setVideo] = useState(props.video);
     const [episode, setEpisode] = useState(props.episode);
     const [nextEpisode, setNextEpisode] = useState(null);
     const [progress, setProgress] = useState(props.progress);
@@ -52,7 +51,7 @@ const Player = (props) => {
     }, [countdown, preparing, link]);
 
     const prepareNext = async (next) => {
-        const _link = await getAllMoviesLink(props.video.title, props.video.year, next.number, next.season);
+        const _link = await getAllMoviesLink(routeParams.video.title, routeParams.video.year, next.number, next.season);
         setNextEpisode(next);
         setUrl(_link);
     }
@@ -89,11 +88,11 @@ const Player = (props) => {
     const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
 
     const logTraktPlay = () => {
-        logPlay(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.isMovie, episode);
+        logPlay(currentUser(), routeParams.video, videoInfo.playableDuration / videoInfo.seekableDuration, routeParams.video.isMovie, episode);
     }
 
     const logTraktPause = () => {
-        logPause(currentUser(), props.video, videoInfo.playableDuration / videoInfo.seekableDuration, props.video.isMovie, episode);
+        logPause(currentUser(), routeParams.video, videoInfo.playableDuration / videoInfo.seekableDuration, routeParams.video.isMovie, episode);
     }
 
     const myTVEventHandler = evt => {    
@@ -177,7 +176,7 @@ const Player = (props) => {
                 onProgress={progressUpdate}
             />
             {
-            (videoInfo.seekableDuration - videoInfo.currentTime && videoInfo.seekableDuration !== 1) < 30 &&
+            ((videoInfo.seekableDuration - videoInfo.currentTime) < 30 && videoInfo.seekableDuration !== 1) &&
             <>
             <View style={styles.nextCountdownBack}>
                 <View style={styles.nextCountdownFront} flex={(30 - (videoInfo.seekableDuration - videoInfo.currentTime))}></View>

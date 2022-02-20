@@ -20,6 +20,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './pages/login/Login';
 import Main from './pages/main/Main';
 import Player from './pages/Player';
+import TVShow from './pages/TVShow';
  
 const rootReducer = combineReducers({ page: PageReducer, auth: AuthReducer, videoInfo: VideoInfoReducer});
 
@@ -49,6 +50,7 @@ const App = () => {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Main" component={Main} />
             <Stack.Screen name="Player" component={Player} />
+            <Stack.Screen name="TVShow" component={TVShow} />
           </Stack.Navigator>
         </NavigationContainer>
       </PersistGate>

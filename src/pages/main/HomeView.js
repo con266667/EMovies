@@ -7,29 +7,35 @@
  */
 
 import React from 'react';
-import Home from './tabs/Home';
 import { Dimensions, View } from 'react-native';
-import Shows from './tabs/Shows';
 import Search from './tabs/Search';
+import { useSelector } from 'react-redux';
+import Page from './components/Page';
 
 const HomeView = (props) => {
+    const state = useSelector(state => state)
+
+    console.log(state.auth.auth.lists[state.auth.auth.currentUserUUID]['home']['lists']);
+
     switch(props.page) {
         case 'Home':
             return (
-                <Home
+                <Page 
+                    lists={state.auth.auth.lists[state.auth.auth.currentUserUUID]['home']['lists']}  
                     navigation={props.navigation}
                     width={Dimensions.get('window').width - 68} 
-                    sideRef={props.homeRef} 
-                />)
+                    sideRef={props.homeRef} />
+                );
         case 'Movie':
             return (<View />)
         case 'TV':
             return (
-                <Shows
+                <Page 
+                    lists={state.auth.auth.lists[state.auth.auth.currentUserUUID]['tv']['lists']}  
                     navigation={props.navigation}
                     width={Dimensions.get('window').width - 68} 
-                    sideRef={props.tvRef}
-                />)
+                    sideRef={props.tvRef} />
+                )
         case 'Search':
             return (
                 <Search 
