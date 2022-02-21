@@ -8,13 +8,14 @@
 
  import React, { useEffect, useRef, useState } from 'react';
  import { Provider, useDispatch, useSelector } from 'react-redux';
- import { Dimensions, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
- import Search from '../../../assets/icons/search.svg';
+ import { Dimensions, findNodeHandle, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
  import TV from '../../../assets/icons/tv.svg';
  import Video from '../../../assets/icons/video.svg';
  import HomeIcon from '../../../assets/icons/home.svg';
+ import Search from '../../../assets/icons/search.svg';
  import { BlurView } from "@react-native-community/blur";
-import Page from './components/Page';
+ import SearchPage from './Search';
+ import Page from './components/Page';
  
  const Main = ({ navigation }) => {
     const state = useSelector(state => state);
@@ -22,79 +23,103 @@ import Page from './components/Page';
     const [sidebarActive, setSidebarActive] = useState(false);
     const [scrollviewRef, setScrollviewRef] = useState(null);
     const [itemLocations, setItemLocations] = useState({});
+    const [listFirstRefs, setListFirstRefs] = useState({});
 
     const setPage = (page) => {
         dipatch({ type: 'CHANGE_PAGE', payload: page });
-        scrollToList(list(page)[0]);
-        setSidebarActive(true);
+        scrollToList(list().find(list => list.page === page));
+        // setSidebarActive(true);
     }
 
-    const list = (page) => {
+    const list = () => {
         try {
-            return state.auth.auth.lists[state.auth.auth.currentUserUUID][page]['lists'];
+            return state.auth.auth.lists[state.auth.auth.currentUserUUID]['lists'];
         } catch (_) {
             return [];
         }
     }
 
     const scrollToList = (list) => {
-        if (itemLocations[list.page + list.title] !== undefined) {
+        try {
             scrollviewRef.scrollTo({ x: 0, y: itemLocations[list.page + list.title].y - 10, animated: true });
-        }
+        } catch (_) {}
     }
- 
-    const homeRef = useRef(null);
-    const tvRef = useRef(null);
+
+    const sideRefs = {
+        'home': useRef(null),
+        'tv': useRef(null),
+        'movies': useRef(null),
+        'search': useRef(null),
+    }
+
+    // try {
+    //     console.log(listFirstRefs['tvRecently Watched'].current)
+    // } catch (_) {
+    //     console.log(_)
+    // }
  
     return (
         <View style={styles.content}>
             <View style={styles.sidebar}>
-                <TouchableWithoutFeedback
-                    hasTVPreferredFocus={state.page.page.page === 'home'}
+                {listFirstRefs['homeRecently Watched'] !== undefined &&
+                <TouchableOpacity
+                    // hasTVPreferredFocus={state.page.page.page === 'home'}
                     onFocus={() => setPage('home')} 
-                    onBlur={() => setSidebarActive(false)}
-                    ref={(ref) => homeRef.current = ref} >
+                    nextFocusRight={findNodeHandle(listFirstRefs['homeRecently Watched'].current)}
+                    // onBlur={() => setSidebarActive(false)}
+                    ref={(ref) => sideRefs.home.current = ref} >
                     <HomeIcon 
                         path={state.page.page.page === 'home' ? '#fff' : '#666'}
                         style={styles.icon} />
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback 
-                    hasTVPreferredFocus={state.page.page.page === 'tv'}
+                </TouchableOpacity>
+                }
+                {listFirstRefs['tvRecently Watched'] !== undefined &&
+                <TouchableOpacity 
                     onFocus={() => setPage('tv')} 
-                    onBlur={() => setSidebarActive(false)}
-                    ref={(ref) => tvRef.current = ref} >
+                    nextFocusRight={findNodeHandle(listFirstRefs['tvRecently Watched'].current)}
+                    ref={(ref) => sideRefs.tv.current = ref} >
                     <TV 
                         path={state.page.page.page === 'tv' ? '#fff' : '#666'} 
                         style={styles.icon} />
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback 
-                    onFocus={() => setPage('Movies')} 
-                    onBlur={() => setSidebarActive(false)}
-                    hasTVPreferredFocus={state.page.page.page === 'Movies'} >
+                </TouchableOpacity>
+                }
+                {listFirstRefs['moviesTrending'] !== undefined &&
+                <TouchableOpacity 
+                    onFocus={() => setPage('movies')} 
+                    nextFocusRight={findNodeHandle(listFirstRefs['moviesTrending'].current)}
+                    ref={(ref) => sideRefs.movies.current = ref}>
                     <Video 
-                        path={state.page.page.page === 'Movies' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'movies' ? '#fff' : '#666'} 
                         style={styles.icon} />
-                </TouchableWithoutFeedback>
+                </TouchableOpacity>
+                }
                 <TouchableWithoutFeedback 
-                    onFocus={() => setPage('Search')} 
-                    onBlur={() => setSidebarActive(false)}
-                    hasTVPreferredFocus={state.page.page.page === 'Search'} >
+                    onFocus={() => setPage('search')} 
+                    onBlur={() => setSidebarActive(false)} >
                     <Search 
-                        path={state.page.page.page === 'Search' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'search' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
             </View>
+            
             <Page
-                lists={[...list('home'), ...list('tv')]}  
+                opacity={state.page.page.page !== 'search' ? 1 : 0}
+                lists={list()}  
                 navigation={navigation}
                 width={Dimensions.get('window').width - 68} 
-                sideRef={homeRef} 
+                sideRefs={sideRefs} 
                 scrollviewRef={scrollviewRef}
                 setScrollviewRef={setScrollviewRef}
                 itemLocations={itemLocations}
+                setListFirstRefs={setListFirstRefs}
+                listFirstRefs={listFirstRefs}
                 setItemLocations={setItemLocations}
                 scrollToList={scrollToList}
-                />
+            />
+            <SearchPage
+                opacity={state.page.page.page === 'search' ? 1 : 0}
+                navigation={navigation}
+            />
             {/* <View opacity={sidebarActive ? 1 : 0} style={styles.over}>
                 <BlurView
                     style={styles.absolute}

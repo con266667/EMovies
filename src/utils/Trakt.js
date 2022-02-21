@@ -107,6 +107,14 @@ export const getRecentlyWatchedVideos = async (userdata, dispatch) => {
     return [...movies, ...shows];
 }
 
+export const getRecomededVideos = async (userdata, dispatch) => {
+    const moviesRepsonse = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
+    const showsResponse = await axios.get('https://api.trakt.tv/recommendations/shows', defaultConfig(userdata));
+    movies = await storeVideoListData(moviesRepsonse.data, true);
+    shows = await storeVideoListData(showsResponse.data, false);
+    return [...movies, ...shows];
+}
+
 export const getShowEpisodes = async (traktid, dispatch) => {
     const response = await axios.get('https://api.trakt.tv/shows/' + traktid + '/seasons?extended=episodes', {
         headers: { 

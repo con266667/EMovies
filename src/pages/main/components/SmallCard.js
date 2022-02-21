@@ -8,8 +8,11 @@ const SmallCard = (props) => {
     const onRef = useCallback((ref) => {
         if (ref) {
           touchableRef.current = ref;
+          if (props.index === 0) {
+            props.setListFirstRefs(prev => ({ ...prev, [props.list.page + props.list.title]: touchableRef }));
+          }
         }
-    }, []);
+    }, [touchableRef]);
 
     const dispatch = useDispatch();
 
@@ -20,8 +23,7 @@ const SmallCard = (props) => {
     return (
         <View key={props.list.title + props.index.toString() + props.item.title}>
             <TouchableOpacity
-                // hasTVPreferredFocus = {props.isTopRow && props.index === 0}
-                nextFocusLeft = {props.index === 0 ? findNodeHandle(props.sideRef.current) : null}
+                nextFocusLeft = {props.index === 0 ? findNodeHandle(props.sideRefs[props.list.page].current) : null}
                 nextFocusRight = {props.isLast ? findNodeHandle(touchableRef.current) : null}
                 nextFocusUp = {props.isTopRow ? findNodeHandle(touchableRef.current) : null}
                 onBlur={() => props.clearYoutubeKey()}
@@ -30,9 +32,6 @@ const SmallCard = (props) => {
                     props.setSelected(props.item);
                     setPage(props.list.page);
                     props.scrollToList(props.list);
-                    // if (props.itemLocations[props.list.page + props.list.title] !== undefined) {
-                    //     props.scrollview.scrollTo({ x: 0, y: props.itemLocations[props.list.page + props.list.title].y - 10, animated: true });
-                    // }
                 }} 
                 onPress={() => {
                     if (props.item.isMovie) {

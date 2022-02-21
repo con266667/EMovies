@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { searchMulti } from "../../../utils/tmdb";
-import { searchShow } from "../../../utils/Trakt";
+import { searchMulti } from "../../utils/tmdb";
+import { searchShow } from "../../utils/Trakt";
 
-const Search = (props) => {
+const SearchPage = (props) => {
     const [search, setSearch] = useState("");
     const [results, setResults] = useState([]);
 
@@ -23,7 +23,7 @@ const Search = (props) => {
     }
 
     return (
-        <View style={styles.main}>
+        <View style={styles.main} opacity={props.opacity}>
             <View style={{justifyContent: "center"}} >
                 <View style={styles.searchBar}>
                     <Text style={styles.search}>{search.toLowerCase()}</Text>
@@ -146,4 +146,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Search;
+export default SearchPage;

@@ -94,13 +94,13 @@ const Page = (props) => {
       setSelectedYoutubeKey(_youtubeKey);
       setTimeout(() => {
         setPlayTrailer(true);
-      }, 5500);
-    },3500));
+      }, 5000);
+    },2500));
   }
 
   return (
     props.lists.length > 0 ?
-    <View width={props.width}>      
+    <View width={props.width} opacity={props.opacity}>      
       { selected.title !== 'Loading...' ?
       <Image 
         source={{ uri: selected.backdrop.replace('original', 'w1280') }}
@@ -140,7 +140,9 @@ const Page = (props) => {
                     <SmallCard
                       key={index}
                       index={index}
-                      isTopRow = {list.title === props.lists[0].title}
+                      listFirstRefs = {props.listFirstRefs}
+                      setListFirstRefs = {props.setListFirstRefs}
+                      isTopRow = {list.title === props.lists[0].title && list.page === 'home'}
                       itemLocations = {props.itemLocations}
                       scrollToList = {props.scrollToList}
                       setSelected = {selectVideo}
@@ -154,7 +156,7 @@ const Page = (props) => {
                       state = {state}
                       isLast = {index === list.items.length - 1}
                       clearYoutubeKey = {clearYoutubeKey}
-                      sideRef = {props.sideRef} />
+                      sideRefs = {props.sideRefs} />
                   )
                 } 
               </ScrollView>
@@ -177,6 +179,7 @@ const Page = (props) => {
             showinfo: 0,
             controls: 0,
             rel: 0,
+            autoplay: 1,
           }}
           useLocalHTML={true}
           play={true}

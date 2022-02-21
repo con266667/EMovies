@@ -1,15 +1,21 @@
-import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedShows, getRecentlyWatchedVideos, getTopMovies, getTopShows } from "./Trakt";
+import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedShows, getRecentlyWatchedVideos, getRecomededVideos, getTopMovies, getTopShows } from "./Trakt";
 
 export const loadLists = async (currentUser, dispatch) => {
-    loadHome(currentUser, dispatch);
-    loadTV(currentUser, dispatch);
+    const home = await loadHome(currentUser, dispatch);
+    const tv = await loadTV(currentUser, dispatch);
+    const movies = await loadMovies(currentUser, dispatch);
+
+    console.log([...home, ...tv, ...movies]);
+
+    dispatch({ type: 'UPDATE_LISTS', payload: {
+        lists: [...home, ...tv, ...movies],
+        uuid: currentUser.uuid
+    }});
 }
 
 const loadHome = async (currentUser, dispatch) => {
     const recentlyWatchedVideos = await getRecentlyWatchedVideos(currentUser, dispatch);
-    const trendingMovies = await getTopMovies();
-    const actionMovies = await getActionMovies();
-    const comedyMovies = await getComedyMovies();
+    const recommendations = await getRecomededVideos(currentUser, dispatch);
 
     const lists = [
         {
@@ -19,26 +25,12 @@ const loadHome = async (currentUser, dispatch) => {
         },
         {
             'page': 'home',
-            'title': 'Trending',
-            'items': trendingMovies.filter(v => v !== undefined && v.valid)
-        },
-        {
-            'page': 'home',
-            'title': 'Action',
-            'items': actionMovies.filter(v => v !== undefined && v.valid)
-        },
-        {
-            'page': 'home',
-            'title': 'Comedy',
-            'items': comedyMovies.filter(v => v !== undefined && v.valid)
+            'title': 'Recommended',
+            'items': recommendations.filter(v => v !== undefined && v.valid)
         }
     ]
 
-    dispatch({ type: 'UPDATE_LISTS', payload: {
-        lists: lists,
-        page: 'home',
-        uuid: currentUser.uuid
-    }})
+    return lists;
 }
 
 const loadTV = async (currentUser, dispatch) => {
@@ -70,9 +62,31 @@ const loadTV = async (currentUser, dispatch) => {
       }
     ]
 
-    dispatch({ type: 'UPDATE_LISTS', payload: {
-        lists: lists,
-        page: 'tv',
-        uuid: currentUser.uuid
-    }});
+    return lists;
+}
+
+const loadMovies = async (currentUser, dispatch) => {
+    const trendingMovies = await getTopMovies();
+    const actionMovies = await getActionMovies();
+    const comedyMovies = await getComedyMovies();
+
+    const lists = [
+        {
+            'page': 'movies',
+            'title': 'Trending',
+            'items': trendingMovies.filter(v => v !== undefined && v.valid)
+        },
+        {
+            'page': 'movies',
+            'title': 'Action',
+            'items': actionMovies.filter(v => v !== undefined && v.valid)
+        },
+        {
+            'page': 'movies',
+            'title': 'Comedy',
+            'items': comedyMovies.filter(v => v !== undefined && v.valid)
+        }
+    ];
+
+    return lists;
 }

@@ -56,11 +56,8 @@ const authReducer = (state = INITIAL_STATE, action) => {
       });
     case 'UPDATE_LISTS':
       newstate = Object.assign({}, state);
-      if (newstate[action.payload.uuid] === undefined) {
-        newstate.lists[action.payload.uuid] = listsDefault;
-      }
-      newstate.lists[action.payload.uuid][action.payload.page]['lists'] = action.payload.lists;
-      newstate.lists[action.payload.uuid][action.payload.page]['lastUpdated'] = Date.now();
+      newstate.lists[action.payload.uuid]['lists'] = action.payload.lists;
+      newstate.lists[action.payload.uuid]['lastUpdated'] = Date.now();
       return Object.assign({}, newstate, {
         lists: newstate.lists
       });
