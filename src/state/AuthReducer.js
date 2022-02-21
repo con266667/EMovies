@@ -10,18 +10,8 @@ const INITIAL_STATE = {
 };
 
 const listsDefault = {
-  "home": {
-    "lists": [],
-    "lastUpdated": 0
-  },
-  "tv": {
-    "lists": [],
-    "lastUpdated": 0
-  },
-  "movies": {
-    "lists": [],
-    "lastUpdated": 0
-  },
+  "lists": [],
+  "lastUpdated": 0
 }
 
 const authReducer = (state = INITIAL_STATE, action) => {
@@ -56,6 +46,9 @@ const authReducer = (state = INITIAL_STATE, action) => {
       });
     case 'UPDATE_LISTS':
       newstate = Object.assign({}, state);
+      if (state.lists[action.payload.uuid] === undefined) {
+        newstate.lists[action.payload.uuid] = listsDefault;
+      }
       newstate.lists[action.payload.uuid]['lists'] = action.payload.lists;
       newstate.lists[action.payload.uuid]['lastUpdated'] = Date.now();
       return Object.assign({}, newstate, {
