@@ -89,8 +89,9 @@ const Page = (props) => {
   const selectVideo = async (video) => {
     setPlayTrailer(false);
     setSelected(video);
-    const _youtubeKey = await youtubeKey(video);
-    setPlayTimeout(setTimeout(() => {
+    
+    setPlayTimeout(setTimeout(async () => {
+      const _youtubeKey = await youtubeKey(video);
       setSelectedYoutubeKey(_youtubeKey);
       setTimeout(() => {
         setPlayTrailer(true);
@@ -116,6 +117,7 @@ const Page = (props) => {
       }
       <ScrollView
         fadingEdgeLength={50}
+        removeClippedSubviews={true}
         showsVerticalScrollIndicator={false}
         height={Dimensions.get('window').height * 0.6}
         ref={(ref) => props.setScrollviewRef(ref)}

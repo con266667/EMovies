@@ -24,6 +24,7 @@
     const [scrollviewRef, setScrollviewRef] = useState(null);
     const [itemLocations, setItemLocations] = useState({});
     const [listFirstRefs, setListFirstRefs] = useState({});
+    const [letterRefs, setLetterRefs] = useState({});
 
     const setPage = (page) => {
         dipatch({ type: 'CHANGE_PAGE', payload: page });
@@ -51,12 +52,6 @@
         'movies': useRef(null),
         'search': useRef(null),
     }
-
-    // try {
-    //     console.log(listFirstRefs['tvRecently Watched'].current)
-    // } catch (_) {
-    //     console.log(_)
-    // }
  
     return (
         <View style={styles.content}>
@@ -93,13 +88,17 @@
                         style={styles.icon} />
                 </TouchableOpacity>
                 }
-                <TouchableWithoutFeedback 
+                {
+                letterRefs['A'] !== undefined &&
+                <TouchableOpacity 
                     onFocus={() => setPage('search')} 
-                    onBlur={() => setSidebarActive(false)} >
+                    nextFocusRight={findNodeHandle(letterRefs['A'].current)} 
+                    ref={(ref) => sideRefs.search.current = ref}>
                     <Search 
                         path={state.page.page.page === 'search' ? '#fff' : '#666'} 
                         style={styles.icon} />
-                </TouchableWithoutFeedback>
+                </TouchableOpacity>
+                }
             </View>
             
             <Page
@@ -116,10 +115,18 @@
                 setItemLocations={setItemLocations}
                 scrollToList={scrollToList}
             />
-            <SearchPage
-                opacity={state.page.page.page === 'search' ? 1 : 0}
-                navigation={navigation}
-            />
+            <View 
+                style={styles.searchPage} 
+                width={Dimensions.get('window').width - 68} 
+                height={Dimensions.get('window').height} >
+                <SearchPage
+                    sideRef={sideRefs.search}
+                    setLetterRefs={setLetterRefs}
+                    letterRefs={letterRefs}
+                    opacity={state.page.page.page === 'search' ? 1 : 0}
+                    navigation={navigation}
+                />
+            </View>
             {/* <View opacity={sidebarActive ? 1 : 0} style={styles.over}>
                 <BlurView
                     style={styles.absolute}
@@ -147,6 +154,11 @@
          left: 60,
          bottom: 0,
          right: 0
+     },
+     searchPage: {
+        position: "absolute",
+        justifyContent: "center",
+        left: 68,
      },
      wrap: {
          paddingHorizontal: 60,
