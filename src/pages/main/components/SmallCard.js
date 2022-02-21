@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from "react";
 import { ActivityIndicator, findNodeHandle, Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useDispatch } from "react-redux";
 
 const SmallCard = (props) => {
     const touchableRef = useRef(null);
@@ -9,6 +10,12 @@ const SmallCard = (props) => {
           touchableRef.current = ref;
         }
     }, []);
+
+    const dispatch = useDispatch();
+
+    const setPage = (page) => {
+        dispatch({ type: 'CHANGE_PAGE', payload: page });
+    }
 
     return (
         <View key={props.list.title + props.index.toString() + props.item.title}>
@@ -21,9 +28,11 @@ const SmallCard = (props) => {
                 activeOpacity={.2}
                 onFocus={() => {
                     props.setSelected(props.item);
-                    if (props.itemLocations[props.list.title] !== undefined) {
-                        props.scrollview.scrollTo({ x: 0, y: props.itemLocations[props.list.title].y - 10, animated: true });
-                    }
+                    setPage(props.list.page);
+                    props.scrollToList(props.list);
+                    // if (props.itemLocations[props.list.page + props.list.title] !== undefined) {
+                    //     props.scrollview.scrollTo({ x: 0, y: props.itemLocations[props.list.page + props.list.title].y - 10, animated: true });
+                    // }
                 }} 
                 onPress={() => {
                     if (props.item.isMovie) {

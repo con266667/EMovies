@@ -99,6 +99,14 @@ export const getRecentlyWatchedShows = async (userdata, dispatch) => {
     return await storeVideoListData(response.data.filter(video => video.type !== 'movie'), false);
 }
 
+export const getRecentlyWatchedVideos = async (userdata, dispatch) => {
+    const response = await axios.get('https://api.trakt.tv/sync/playback', defaultConfig(userdata));
+    dispatch({ type: 'UPDATE_WATCH_PROGRESS', payload: {'uuid': userdata.uuid, 'watchProgress': response.data} })
+    movies = await storeVideoListData(response.data.filter(video => video.type === 'movie'), true);
+    shows = await storeVideoListData(response.data.filter(video => video.type !== 'movie'), false);
+    return [...movies, ...shows];
+}
+
 export const getShowEpisodes = async (traktid, dispatch) => {
     const response = await axios.get('https://api.trakt.tv/shows/' + traktid + '/seasons?extended=episodes', {
         headers: { 

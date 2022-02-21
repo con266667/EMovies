@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 
 const INITIAL_STATE = {
-  page: 'Home',
+  page: 'home',
 };
 
 const pageReducer = (state = INITIAL_STATE, action) => {

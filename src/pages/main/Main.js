@@ -8,22 +8,39 @@
 
  import React, { useEffect, useRef, useState } from 'react';
  import { Provider, useDispatch, useSelector } from 'react-redux';
- import HomeView from './HomeView';
  import { Dimensions, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
  import Search from '../../../assets/icons/search.svg';
  import TV from '../../../assets/icons/tv.svg';
  import Video from '../../../assets/icons/video.svg';
  import HomeIcon from '../../../assets/icons/home.svg';
  import { BlurView } from "@react-native-community/blur";
+import Page from './components/Page';
  
  const Main = ({ navigation }) => {
     const state = useSelector(state => state);
     const dipatch = useDispatch();
     const [sidebarActive, setSidebarActive] = useState(false);
+    const [scrollviewRef, setScrollviewRef] = useState(null);
+    const [itemLocations, setItemLocations] = useState({});
 
     const setPage = (page) => {
         dipatch({ type: 'CHANGE_PAGE', payload: page });
+        scrollToList(list(page)[0]);
         setSidebarActive(true);
+    }
+
+    const list = (page) => {
+        try {
+            return state.auth.auth.lists[state.auth.auth.currentUserUUID][page]['lists'];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    const scrollToList = (list) => {
+        if (itemLocations[list.page + list.title] !== undefined) {
+            scrollviewRef.scrollTo({ x: 0, y: itemLocations[list.page + list.title].y - 10, animated: true });
+        }
     }
  
     const homeRef = useRef(null);
@@ -33,21 +50,21 @@
         <View style={styles.content}>
             <View style={styles.sidebar}>
                 <TouchableWithoutFeedback
-                    hasTVPreferredFocus={state.page.page.page === 'Home'}
-                    onFocus={() => setPage('Home')} 
+                    hasTVPreferredFocus={state.page.page.page === 'home'}
+                    onFocus={() => setPage('home')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => homeRef.current = ref} >
                     <HomeIcon 
-                        path={state.page.page.page === 'Home' ? '#fff' : '#666'}
+                        path={state.page.page.page === 'home' ? '#fff' : '#666'}
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback 
-                    hasTVPreferredFocus={state.page.page.page === 'TV'}
-                    onFocus={() => setPage('TV')} 
+                    hasTVPreferredFocus={state.page.page.page === 'tv'}
+                    onFocus={() => setPage('tv')} 
                     onBlur={() => setSidebarActive(false)}
                     ref={(ref) => tvRef.current = ref} >
                     <TV 
-                        path={state.page.page.page === 'TV' ? '#fff' : '#666'} 
+                        path={state.page.page.page === 'tv' ? '#fff' : '#666'} 
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback 
@@ -67,7 +84,17 @@
                         style={styles.icon} />
                 </TouchableWithoutFeedback>
             </View>
-            <HomeView page={state.page.page.page} navigation={navigation} homeRef={homeRef} tvRef={tvRef} />
+            <Page
+                lists={[...list('home'), ...list('tv')]}  
+                navigation={navigation}
+                width={Dimensions.get('window').width - 68} 
+                sideRef={homeRef} 
+                scrollviewRef={scrollviewRef}
+                setScrollviewRef={setScrollviewRef}
+                itemLocations={itemLocations}
+                setItemLocations={setItemLocations}
+                scrollToList={scrollToList}
+                />
             {/* <View opacity={sidebarActive ? 1 : 0} style={styles.over}>
                 <BlurView
                     style={styles.absolute}

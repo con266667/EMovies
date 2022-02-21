@@ -25,9 +25,6 @@ import { trailerId } from '../../../utils/Trailer';
 
 const Page = (props) => {
   const state = useSelector(state => state)
-  const dispatch = useDispatch();
-  const [scrollview, setScrollview] = useState(null);
-  const [itemLocations, setItemLocations] = useState({});
   const [selected, setSelected] = useState({
     title: 'Loading...',
     year: '',
@@ -59,6 +56,7 @@ const Page = (props) => {
 
   const getMovie = async (movie) => {
     const link = await getAllMoviesLink(movie.title, movie.year);
+    clearYoutubeKey();
     setUrl(link);
   }
 
@@ -96,8 +94,8 @@ const Page = (props) => {
       setSelectedYoutubeKey(_youtubeKey);
       setTimeout(() => {
         setPlayTrailer(true);
-      }, 4500);
-    },4500));
+      }, 5500);
+    },3500));
   }
 
   return (
@@ -120,14 +118,14 @@ const Page = (props) => {
         fadingEdgeLength={50}
         showsVerticalScrollIndicator={false}
         height={Dimensions.get('window').height * 0.6}
-        ref={(ref) => setScrollview(ref)}
+        ref={(ref) => props.setScrollviewRef(ref)}
         >
         {
-          props.lists.filter(list => list.items.length > 0).map((list) => 
-            <View key={list.title}
+          props.lists.filter(list => list.items.length > 0).map((list, i) => 
+            <View key={i}
             onLayout={(event) => {
               const layout = event.nativeEvent.layout;
-              setItemLocations({ ...itemLocations, [list.title]: layout });
+              props.setItemLocations({ ...props.itemLocations, [list.page + list.title]: layout });
             }}>
               <Text style={styles.subtitle}>{list.title}</Text>
               <View height={5}></View>
@@ -140,13 +138,14 @@ const Page = (props) => {
                 {
                   list.items.map((item, index) => 
                     <SmallCard
-                      key={list.title + index.toString()}
+                      key={index}
                       index={index}
                       isTopRow = {list.title === props.lists[0].title}
-                      itemLocations = {itemLocations}
+                      itemLocations = {props.itemLocations}
+                      scrollToList = {props.scrollToList}
                       setSelected = {selectVideo}
                       item = {item}
-                      scrollview = {scrollview}
+                      scrollview = {props.scrollviewRef}
                       setLoadingMovie = {setLoadingMovie}
                       loadingMovie = {loadingMovie}
                       getMovie = {getMovie}

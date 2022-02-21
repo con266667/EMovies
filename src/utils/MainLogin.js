@@ -1,4 +1,4 @@
-import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedShows, getTopMovies, getTopShows } from "./Trakt";
+import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedShows, getRecentlyWatchedVideos, getTopMovies, getTopShows } from "./Trakt";
 
 export const loadLists = async (currentUser, dispatch) => {
     loadHome(currentUser, dispatch);
@@ -6,20 +6,29 @@ export const loadLists = async (currentUser, dispatch) => {
 }
 
 const loadHome = async (currentUser, dispatch) => {
+    const recentlyWatchedVideos = await getRecentlyWatchedVideos(currentUser, dispatch);
     const trendingMovies = await getTopMovies();
     const actionMovies = await getActionMovies();
     const comedyMovies = await getComedyMovies();
 
     const lists = [
         {
+            'page': 'home',
+            'title': 'Recently Watched',
+            'items': recentlyWatchedVideos.filter(v => v !== undefined && v.valid)
+        },
+        {
+            'page': 'home',
             'title': 'Trending',
             'items': trendingMovies.filter(v => v !== undefined && v.valid)
         },
         {
+            'page': 'home',
             'title': 'Action',
             'items': actionMovies.filter(v => v !== undefined && v.valid)
         },
         {
+            'page': 'home',
             'title': 'Comedy',
             'items': comedyMovies.filter(v => v !== undefined && v.valid)
         }
@@ -40,18 +49,22 @@ const loadTV = async (currentUser, dispatch) => {
 
     const lists = [
       {
+        'page': 'tv',
         'title': 'Recently Watched',
         'items': recentlyWatchedShows.filter(v => v !== undefined && v.valid)
       },
       {
+        'page': 'tv',
         'title': 'Top Shows',
         'items': topShows.filter(v => v !== undefined && v.valid)
       },
       {
+        'page': 'tv',
         'title': 'Action',
         'items': actionShows.filter(v => v !== undefined && v.valid)
       },
       {
+        'page': 'tv',
         'title': 'Comedy',
         'items': comedyShows.filter(v => v !== undefined && v.valid)
       }
