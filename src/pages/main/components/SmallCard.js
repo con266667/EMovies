@@ -39,7 +39,7 @@ const SmallCard = (props) => {
                     if (props.item.isMovie) {
                         props.item.open(props.navigation);
                     } else {
-                        props.item.openShow(props.item);
+                        props.item.openShow(props.navigation);
                     }
                 }}
                 ref={onRef}>

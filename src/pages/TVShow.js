@@ -30,23 +30,10 @@ const TVShow = (props) => {
   const [tmdbSeasons, setTmdbSeasons] = useState([]);
 
   const getShow = async (show, episode) => {
-    // const link = await getAllMoviesLink(show.title, show.year, episode.number, episode.season);
-    // setUrl(link);
     const _show = show;
     _show.episode = episode.number;
     _show.season = episode.season;
     _show.open(props.navigation);
-  }
-
-  const handleLink = (link) => {
-    setUrl('');
-    const _episode = Object.assign({}, loadingEpisode);
-    setLoadingEpisode({});
-    props.navigation.navigate('Player', {
-      video: _episode,
-      progress: playback.filter(playback => playback.episode.ids.trakt === _episode.ids.trakt)[0].progress,
-      url: link,
-    });
   }
 
   const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
@@ -143,7 +130,6 @@ const TVShow = (props) => {
 
   return (
     <View style={{backgroundColor: '#000'}}>
-        <Webview url={url} handleLink={handleLink} />
         <Image
             style={styles.backgroundImage}
             source={{

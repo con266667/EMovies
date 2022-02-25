@@ -51,7 +51,11 @@ export default class Video {
 
     progress (state) {
         try {
-            return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => (v['movie'] ?? v['show']).ids.imdb === this.ids.imdb).progress;
+            if (this.isMovie) {
+                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => v['type'] === 'movie' && v['movie'].ids.imdb === this.ids.imdb).progress;
+            } else {
+                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => v['type'] === 'episode' && v['show'].ids.imdb === this.ids.imdb && v['episode'].number === this.episode && v['episode'].season === this.season).progress;
+            }
         } catch (e) {console.log(e)}
         return 0;
     }
