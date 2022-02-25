@@ -53,28 +53,7 @@ const Page = (props) => {
       setSelected(props.lists[0].items[0]);
     }
   }, [selected]);
-
-  const getMovie = async (movie) => {
-    const link = await getAllMoviesLink(movie.title, movie.year);
-    clearYoutubeKey();
-    setUrl(link);
-  }
-
-  const openShow = async (show) => {
-    props.navigation.navigate('TVShow', {
-      show: show
-    })
-  }
-
-  const handleLink = (link) => {
-    setUrl('');
-    const _video = Object.assign({}, loadingMovie);
-    setLoadingMovie({});
-    props.navigation.navigate('Player', {
-      video: _video,
-      url: link,
-    });
-  }
+  
 
   const youtubeKey = async (selected) => {
     return await trailerId(selected);
@@ -152,8 +131,7 @@ const Page = (props) => {
                       scrollview = {props.scrollviewRef}
                       setLoadingMovie = {setLoadingMovie}
                       loadingMovie = {loadingMovie}
-                      getMovie = {getMovie}
-                      openShow = {openShow}
+                      navigation = {props.navigation}
                       list = {list}
                       state = {state}
                       isLast = {index === list.items.length - 1}
@@ -228,7 +206,6 @@ const Page = (props) => {
         <Text style={styles.featureTitle}>{selected.title}</Text>
         <Text style={styles.featureDescription}>{(selected.description ?? '').substring(0, 200).split('.')[0] + '.' ?? ''}</Text>
         <Text style={styles.featureYear}>{selected.year ?? ''}</Text>
-        <Webview url={url} handleLink={handleLink}></Webview>
     </View> : <ActivityIndicator />
   );
 };

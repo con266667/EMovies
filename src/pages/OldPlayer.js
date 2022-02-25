@@ -7,8 +7,6 @@ import ReactNative, {
     Text,
     View,
     TouchableWithoutFeedback,
-    ActivityIndicator,
-    BackHandler,
   } from 'react-native';
 import Video from 'react-native-video';
 import { useSelector } from 'react-redux';
@@ -22,23 +20,19 @@ const Player = (props) => {
     const routeParams = props.route.params;
     const videoRef = useRef(null);
     const [videoInfo, setVideoInfo] = useState({"currentTime": 0, "playableDuration": 0, "seekableDuration": 1})
+    const [lastEventType, setLastEventType] = React.useState('hmmm');
     const [paused, setPaused] = React.useState(false);
     const [bottomVisibility, setBottomVisibility] = React.useState(true);
     const [countdown, setCountdown] = useState(3);
     const [videoUrl, setVideoUrl] = useState('');
     const [url, setUrl] = useState('');
+    const [link, setLink] = useState('');
+    const [preparing, setPreparing] = useState(false);
+    const [episode, setEpisode] = useState(props.episode);
+    const [nextEpisode, setNextEpisode] = useState(null);
+    const [progress, setProgress] = useState(props.progress);
 
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            logTraktPause();
-            props.navigation.goBack();
-            return true;
-        });
-
-        if (videoUrl === '') {
-            getVideoAndStart();
-        }
-
         const lower = setInterval(() => {
 
             if (countdown > 0) {
@@ -51,24 +45,53 @@ const Player = (props) => {
         }, 1000);
 
         return () => {
-            backHandler.remove();
             clearInterval(lower);
         };
-    }, [countdown]);
+    }, [countdown, preparing, link]);
 
-    const getVideoAndStart = async () => {
-        const _link = await getAllMoviesLink(routeParams.video.title, routeParams.video.year, routeParams.video.episode, routeParams.video.season);
+    const prepareNext = async (next) => {
+        const _link = await getAllMoviesLink(routeParams.video.title, routeParams.video.year, next.number, next.season);
+        setNextEpisode(next);
         setUrl(_link);
     }
 
     const handleLink = (link) => {
-        setVideoUrl(link);
+        setLink(link);
         setUrl('');
+    }
+
+    const startNextEpisode = () => {
+        logTraktPause();
+        videoRef.current.seek(0);
+        setVideoUrl(link);
+        setLink('');
+        setEpisode(nextEpisode);
+        setProgress(0);
+    }
+
+    const getNextEpisode = (episode) => {
+        if (props.seasons[episode.season].episodes.length > episode.number) {
+            return props.seasons[episode.season].episodes[episode.number];
+        } else if (props.seasons.length > episode.season + 1) {
+            return props.seasons[episode.season + 1].episodes[0];
+        } else {
+            return null;
+        }
     }
 
     const resetTimer = () => {
         setCountdown(3);
         setBottomVisibility(true);
+    }
+
+    const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
+
+    const logTraktPlay = () => {
+        logPlay(currentUser(), routeParams.video, videoInfo.playableDuration / videoInfo.seekableDuration, routeParams.video.isMovie, episode);
+    }
+
+    const logTraktPause = () => {
+        logPause(currentUser(), routeParams.video, videoInfo.playableDuration / videoInfo.seekableDuration, routeParams.video.isMovie, episode);
     }
 
     const myTVEventHandler = evt => {    
@@ -77,6 +100,11 @@ const Player = (props) => {
         }
 
         if (evt.eventType === 'select') {
+            if (!paused) {
+                logTraktPause();
+            } else {
+                logTraktPlay();
+            }
             setPaused(!paused);
         } else if (evt.eventType === 'right') {
             if (videoRef !== null) {
@@ -87,6 +115,8 @@ const Player = (props) => {
                 videoRef.current.seek(videoInfo.currentTime - 10);
             }
         }
+
+        setLastEventType(evt.eventType);
     };
 
     useTVEventHandler(myTVEventHandler);
@@ -102,36 +132,29 @@ const Player = (props) => {
         return hDisplay + mDisplay + ":" + sDisplay; 
     }
 
-    const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
-
-    const logTraktPlay = () => {
-        logPlay(currentUser(), routeParams.video, videoInfo.playableDuration / videoInfo.seekableDuration);
-    }
-
-    const logTraktPause = () => {
-        logPause(currentUser(), routeParams.video, videoInfo.playableDuration / videoInfo.seekableDuration);
-    }
-
-    const progress = () => routeParams.video.progress(state);
-
     const progressUpdate = (info) => {
         setVideoInfo(info);
-    }
 
-    // console.log(state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => (v['movie'] ?? v['show']).ids.imdb === routeParams.video.ids.imdb));
+        if (info.seekableDuration !== 1 && info.seekableDuration - info.currentTime < 120 && !preparing && link === '') {
+            setPreparing(true);
+            prepareNext(getNextEpisode(episode));
+        }
+
+        if (link !== '' && info.seekableDuration - info.currentTime < 15) {
+            startNextEpisode();
+        }
+    }
 
     return (
         <View style={styles.main} >
             <Webview handleLink={handleLink} url={url}></Webview>
-
-            { videoUrl !== '' ?
             <Video
                 onLoad={(video) => {
-                    logTraktPlay();
                     setCountdown(2);
-                    if (progress() !== 0 && progress() <= 98) {
-                        const p = parseInt((progress() / 100) * video.duration);
-                        videoRef.current.seek(p > 6 ? p - 5 : 0);
+                    setPreparing(false);
+                    logTraktPlay();
+                    if (progress !== undefined && progress !== 0 && progress <= 98) {
+                        videoRef.current.seek(parseInt((progress / 100) * video.duration));
                     }
                 }}
                 // maxBitRate={100000}
@@ -150,10 +173,17 @@ const Player = (props) => {
                 style={styles.video}
                 resizeMode='contain'
                 onProgress={progressUpdate}
-            /> : 
-            <ActivityIndicator size={65} />
+            />
+            {
+            ((videoInfo.seekableDuration - videoInfo.currentTime) < 30 && videoInfo.seekableDuration !== 1) &&
+            <>
+            <View style={styles.nextCountdownBack}>
+                <View style={styles.nextCountdownFront} flex={(30 - (videoInfo.seekableDuration - videoInfo.currentTime))}></View>
+                <View flex={(videoInfo.seekableDuration - videoInfo.currentTime - 15)}></View>
+            </View>
+            <Text style={styles.nextCountdownText}>NEXT</Text>
+            </>
             }
-
             {/* <View style={styles.nextCountdownBack} width={100} backgroundColor={'#999'}></View> */}
             {bottomVisibility &&
             <>

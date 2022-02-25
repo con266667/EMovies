@@ -7,6 +7,20 @@ export default class Video {
         this.backdrop = backdrop;
         this.ids = ids;
         this.isMovie = isMovie;
+        this.episode = 0;
+        this.season = 0;
+    }
+
+    open (navigation) {
+        navigation.navigate('Player', {
+            video: this,
+        });
+    }
+
+    openShow (navigation) {
+        navigation.navigate('TVShow', {
+            show: this,
+        });
     }
 
     videoImage (state) {
@@ -36,13 +50,9 @@ export default class Video {
     }
 
     progress (state) {
-        if (
-            state.auth.auth.watchProgress !== undefined
-            && state.auth.auth.watchProgress[state.auth.auth.currentUserUUID] !== undefined
-            && state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].filter(v => (v['movie'] ?? v['show']).ids.imdb === this.ids.imdb).length > 0
-        ) {
-            return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].filter(v => (v['movie'] ?? v['show']).ids.imdb === this.ids.imdb).sort((a,b) => Date(b.paused_at) - Date(a.paused_at)).filter((v,i,a)=>a.findIndex(t=>(t.show.ids.imdb===v.show.ids.imdb))===i)[0].progress;
-        }
+        try {
+            return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => (v['movie'] ?? v['show']).ids.imdb === this.ids.imdb).progress;
+        } catch (e) {console.log(e)}
         return 0;
     }
 

@@ -17,7 +17,9 @@ const SmallCard = (props) => {
     const dispatch = useDispatch();
 
     const setPage = (page) => {
-        dispatch({ type: 'CHANGE_PAGE', payload: page });
+        if (props.state.page.page.page !== page) {
+            dispatch({ type: 'CHANGE_PAGE', payload: page });
+        }
     }
 
     return (
@@ -35,10 +37,9 @@ const SmallCard = (props) => {
                 }} 
                 onPress={() => {
                     if (props.item.isMovie) {
-                        props.setLoadingMovie(props.item);
-                        props.getMovie(props.item);
+                        props.item.open(props.navigation);
                     } else {
-                        props.openShow(props.item);
+                        props.item.openShow(props.item);
                     }
                 }}
                 ref={onRef}>

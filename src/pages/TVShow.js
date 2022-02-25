@@ -30,9 +30,12 @@ const TVShow = (props) => {
   const [tmdbSeasons, setTmdbSeasons] = useState([]);
 
   const getShow = async (show, episode) => {
-    setLoadingEpisode(episode);
-    const link = await getAllMoviesLink(show.title, show.year, episode.number, episode.season);
-    setUrl(link);
+    // const link = await getAllMoviesLink(show.title, show.year, episode.number, episode.season);
+    // setUrl(link);
+    const _show = show;
+    _show.episode = episode.number;
+    _show.season = episode.season;
+    _show.open(props.navigation);
   }
 
   const handleLink = (link) => {
@@ -158,7 +161,7 @@ const TVShow = (props) => {
             <Text style={styles.movieYear}>{show.year}</Text>
             <View height={80}></View>
             <TouchableWithoutFeedback
-              hasTVPreferredFocus = {selectedSeason === 0}
+              hasTVPreferredFocus = {true}
               onFocus={() => {setButton('play'); setEpisodeView(false); setSeason(0)}}
               onPress={() => {
                 getShow(show, playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());

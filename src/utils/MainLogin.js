@@ -5,8 +5,6 @@ export const loadLists = async (currentUser, dispatch) => {
     const tv = await loadTV(currentUser, dispatch);
     const movies = await loadMovies(currentUser, dispatch);
 
-    console.log([...home, ...tv, ...movies]);
-
     dispatch({ type: 'UPDATE_LISTS', payload: {
         lists: [...home, ...tv, ...movies],
         uuid: currentUser.uuid

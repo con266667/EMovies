@@ -179,29 +179,36 @@ const getTmdbInfo = async (tmdbid, isMovie) => {
     return response.data;
 }
 
-const logObject = (traktObject, progress, movie, episode) => {
-    return movie ? {
-        "movie": traktObject,
+const logObject = (video, progress) => {
+    return video.isMovie ? {
+        "movie": {
+            "ids": video.ids
+        },
         "progress": progress * 100,
         "app_version": "1.0.0",
         "app_date": "2022-01-01",
     } : {
-        "episode": episode,
-        "show": traktObject,
+        "episode": {
+            "number": video.episode,
+            "season": video.season,
+        },
+        "show": {
+            "ids": video.ids
+        },
         "progress": progress * 100,
         "app_version": "1.0.0",
         "app_date": "2022-01-01",
     }
 }
 
-export const logPlay = async (userdata, traktObject, progress, movie, episode) => {
+export const logPlay = async (userdata, video, progress) => {
     const config = defaultConfig(userdata);
-    const response = await axios.post('https://api.trakt.tv/scrobble/start', logObject(traktObject, progress, movie, episode), config);
+    const response = await axios.post('https://api.trakt.tv/scrobble/start', logObject(video, progress), config);
     return response.data;
 }
 
-export const logPause = async (userdata, traktObject, progress, movie, episode) => {
+export const logPause = async (userdata, video, progress) => {
     const config = defaultConfig(userdata);
-    const response = await axios.post('https://api.trakt.tv/scrobble/pause', logObject(traktObject, progress, movie, episode), config);
+    const response = await axios.post('https://api.trakt.tv/scrobble/pause', logObject(video, progress), config);
     return response.data;
 }
