@@ -29,28 +29,24 @@ import axios from 'axios';
 
 const Page = (props) => {
   const state = useSelector(state => state)
-  const [selected, setSelected] = useState({
-    title: 'Loading...',
+  const dft = {
+    title: '',
     year: '',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
-  });
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg',
+    backdrop: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg',
+  };
+  const [selected, setSelected] = useState(dft);
   const [trailerUrl, setTrailerUrl] = useState('');
-  const [loadingMovie, setLoadingMovie] = useState({
-    title: 'Loading...',
-    year: '',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
-  });
+  const [loadingMovie, setLoadingMovie] = useState(dft);
   // const [playTimeout, setPlayTimeout] = useState(null);
   var playTimeout = useRef();
   var trailerTimeout = useRef();
-  const [playTrailer, setPlayTrailer] = useState(false);
-  const selectedTitleRef = useRef();
-
-  selectedTitleRef.current = selected.title;
+  var tempSelected = useRef();
+  var inputTimer = useRef();
 
   useEffect(() => {
     if (
-      selected.title === 'Loading...' &&
+      selected.title === '' &&
       props.lists !== undefined &&
       props.lists.length !== 0 &&
       props.lists[0].items !== undefined &&
@@ -63,34 +59,51 @@ const Page = (props) => {
 
   const myTVEventHandler = evt => {    
     if (evt.eventType === 'right' || evt.eventType === 'left' || evt.eventType === 'up' || evt.eventType === 'down' || evt.eventType === 'select') {
-      clearYoutubeKey();
+      pageInput();
     }
   };
 
   useTVEventHandler(myTVEventHandler);
 
-  const clearYoutubeKey = () => {
-    // if (playTimeout.current) {
-    //   clearTimeout(playTimeout.current);
-    // }
+  const pageInput = () => {
+    tempSelected.current = dft;
 
     if (trailerTimeout.current) {
       clearTimeout(trailerTimeout.current);
     }
+  
+    if (inputTimer.current) {
+      clearTimeout(inputTimer.current);
+    }
 
-    setTimeout(() => {
+    if (trailerUrl !== '') {
       setTrailerUrl('');
-    }, 50);
+    }
+
+    inputTimer.current = setTimeout(async () => {
+      setSelected(tempSelected.current);
+      trailerTimeout.current = setTimeout(async () => {
+        const _trailerUrl = await trailerId(tempSelected.current);
+        setTrailerUrl(_trailerUrl);
+      }, 2500);
+    }, 500);
   }
 
   const selectVideo = async (video) => {
-    setSelected(video);
-    trailerTimeout.current = setTimeout(async () => {
-      if (selectedTitleRef.current === video.title) {
-        const _trailerUrl = await trailerId(video);
-        setTrailerUrl(_trailerUrl);
-      }
-    }, 1000);
+    setTimeout(() => {
+      tempSelected.current = video;
+    }, 50);
+    // setTimeout(() => {
+    //   playTimeout.current = setTimeout(async () => {
+    //     setSelected(video);
+    //     trailerTimeout.current = setTimeout(async () => {
+    //       if (selectedTitleRef.current === video.title) {
+    //         const _trailerUrl = await trailerId(video);
+    //         setTrailerUrl(_trailerUrl);
+    //       }
+    //     }, 1000);
+    //   }, 300);
+    // }, 50);
   }
 
   return (
@@ -150,7 +163,7 @@ const Page = (props) => {
                       list = {list}
                       state = {state}
                       isLast = {index === list.items.length - 1}
-                      clearYoutubeKey = {clearYoutubeKey}
+                      clearYoutubeKey = {pageInput}
                       sideRefs = {props.sideRefs} />
                   )
                 } 
