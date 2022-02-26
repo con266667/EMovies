@@ -43,22 +43,33 @@ export const getAllMoviesLink = async (title, year, episode = 0, season = 0) => 
             link = link.replace('/series/', '/episode/');
         }
 
-        return link === '#' ? await getVHLink(title, year) : link;
+        return link === '#' ? await getVHLink(title, year, episode, season) : link;
     } catch (error) {
-        return await getVHLink(title, year);
+        return await getVHLink(title, year, episode, season);
     }
 }
 
-export const getVHLink = async (title, year) => {
+export const getVHLink = async (title, year, episode = 0, season = 0) => {
     const response = await fetch("https://vhmovies.com/search?keyword=" + title);
     const html = await response.text();
     const soup = new JSSoup(html);
     const aTags = soup.findAll('a', {'class': 'halim-thumb'});
+    console.log(aTags);
     var finalATag;
-    aTags.forEach(aTag => {
+    console.log(aTags.filter(x => 
+        (episode === 0 ||
+        (x['attrs']['title'] !== undefined && x['attrs']['title'].includes('Season ' + season.toString()))
+        )
+    ));
+    aTags.filter(x => 
+        (episode === 0 ||
+        (x['attrs']['title'] !== undefined && x['attrs']['title'].includes('Season ' + season.toString()))
+        )
+    )
+    .forEach(aTag => {
         if (
             finalATag === undefined &&
-            aTag['descendants'].filter(x => x['name'] == 'p').filter(x => x['nextElement']['_text'] == year.toString()).length > 0
+            aTag['descendants'].filter(x => x['name'] == 'p').filter(x => (episode > 0 || x['nextElement']['_text'] == year.toString())).length > 0
         ) {
             finalATag = aTag;
         }
@@ -70,5 +81,7 @@ export const getVHLink = async (title, year) => {
         link = finalATag['attrs']['href'];
     }
 
-    return 'https://vhmovies.com' + link + 'watching.html';
+    console.log(link);
+
+    return 'https://vhmovies.com' + link + 'watching.html?ep=' + episode.toString();
 }
