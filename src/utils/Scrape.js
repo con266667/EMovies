@@ -54,18 +54,10 @@ export const getVHLink = async (title, year, episode = 0, season = 0) => {
     const html = await response.text();
     const soup = new JSSoup(html);
     const aTags = soup.findAll('a', {'class': 'halim-thumb'});
-    console.log(aTags);
     var finalATag;
-    console.log(aTags.filter(x => 
-        (episode === 0 ||
-        (x['attrs']['title'] !== undefined && x['attrs']['title'].includes('Season ' + season.toString()))
-        )
-    ));
     aTags.filter(x => 
         (episode === 0 ||
-        (x['attrs']['title'] !== undefined && x['attrs']['title'].includes('Season ' + season.toString()))
-        )
-    )
+        (x['attrs']['title'] !== undefined && x['attrs']['title'].includes('Season ' + season.toString()))))
     .forEach(aTag => {
         if (
             finalATag === undefined &&
@@ -80,8 +72,6 @@ export const getVHLink = async (title, year, episode = 0, season = 0) => {
     } else {
         link = finalATag['attrs']['href'];
     }
-
-    console.log(link);
 
     return 'https://vhmovies.com' + link + 'watching.html?ep=' + episode.toString();
 }

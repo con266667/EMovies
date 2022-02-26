@@ -48,8 +48,8 @@ const SmallCard = (props) => {
                 source={{
                     uri: props.item.poster.replace('original', 'w500'),
                 }} />
-            {/* <View style={styles.progressBack} opacity={(props.item.progress(props.state) < 95 && props.item.progress(props.state) != 0) ? 1 : 0} width={175} height={5} />
-            <View style={styles.progress} width={props.item.progress(props.state) < 95 ? props.item.progress(props.state) * 1.75 : 0} height={5} /> */}
+            <View style={styles.progressBack} opacity={(props.item.progress(props.state) < 95 && props.item.progress(props.state) !== 0) ? 1 : 0} width={80} height={5} />
+            <View style={styles.progress} width={props.item.progress(props.state) < 95 ? props.item.progress(props.state) * 0.8 : 0} height={5} />
             </TouchableOpacity>
             
             <ActivityIndicator 

@@ -56,11 +56,11 @@
     return (
         <View style={styles.content}>
             <View style={styles.sidebar}>
-                {listFirstRefs['homeRecently Watched'] !== undefined &&
+                {listFirstRefs['homeContinue Watching'] !== undefined &&
                 <TouchableOpacity
                     // hasTVPreferredFocus={state.page.page.page === 'home'}
                     onFocus={() => setPage('home')} 
-                    nextFocusRight={findNodeHandle(listFirstRefs['homeRecently Watched'].current)}
+                    nextFocusRight={findNodeHandle(listFirstRefs['homeContinue Watching'].current)}
                     // onBlur={() => setSidebarActive(false)}
                     ref={(ref) => sideRefs.home.current = ref} >
                     <HomeIcon 
@@ -68,10 +68,10 @@
                         style={styles.icon} />
                 </TouchableOpacity>
                 }
-                {listFirstRefs['tvRecently Watched'] !== undefined &&
+                {listFirstRefs['tvContinue Watching'] !== undefined &&
                 <TouchableOpacity 
                     onFocus={() => setPage('tv')} 
-                    nextFocusRight={findNodeHandle(listFirstRefs['tvRecently Watched'].current)}
+                    nextFocusRight={findNodeHandle(listFirstRefs['tvContinue Watching'].current)}
                     ref={(ref) => sideRefs.tv.current = ref} >
                     <TV 
                         path={state.page.page.page === 'tv' ? '#fff' : '#666'} 

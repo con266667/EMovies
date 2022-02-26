@@ -102,9 +102,9 @@ export const getRecentlyWatchedShows = async (userdata, dispatch) => {
 export const getRecentlyWatchedVideos = async (userdata, dispatch) => {
     const response = await axios.get('https://api.trakt.tv/sync/playback', defaultConfig(userdata));
     dispatch({ type: 'UPDATE_WATCH_PROGRESS', payload: {'uuid': userdata.uuid, 'watchProgress': response.data} })
-    movies = await storeVideoListData(response.data.filter(video => video.type === 'movie'), true);
+    movies = await storeVideoListData(response.data.filter(video => video.type === 'movie' && video.progress < 95), true);
     shows = await storeVideoListData(response.data.filter(video => video.type !== 'movie'), false);
-    return [...movies, ...shows];
+    return [...movies, ...shows].sort((a, b) => new Date(b.paused_at) - new Date(a.paused_at));
 }
 
 export const getRecomededVideos = async (userdata, dispatch) => {
@@ -154,7 +154,7 @@ const stripVideo = (video) => {
     return strippedVideo;
 }
 
-const videoObjectFromTrakt = async (video, isMovie) => {
+const videoObjectFromTrakt = async (video, isMovie, orig) => {
     var tmdbInfo = await getTmdbInfo(video.ids.tmdb, isMovie);
     return new Video(
         (isMovie ? tmdbInfo.title : tmdbInfo.name), 
@@ -163,14 +163,15 @@ const videoObjectFromTrakt = async (video, isMovie) => {
         'https://image.tmdb.org/t/p/original' + tmdbInfo.poster_path, 
         'https://image.tmdb.org/t/p/original' + tmdbInfo.backdrop_path, 
         video.ids, 
-        isMovie
+        isMovie,
+        orig.paused_at
     )
 }
 
 const storeVideoListData = async (list, aremovies) => {
     var videos = stripVideos(list);
     videos = videos.filter((v,i,a)=>a.findIndex(t=>(t.ids.imdb===v.ids.imdb))===i);
-    return Promise.all(videos.map(video => videoObjectFromTrakt(video, aremovies)));
+    return Promise.all(videos.map(video => videoObjectFromTrakt(video, aremovies, list.find(v => (v.ids ?? (v.movie ?? v.show).ids).imdb === video.ids.imdb))));
 }
 
 const getTmdbInfo = async (tmdbid, isMovie) => {

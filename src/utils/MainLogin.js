@@ -18,7 +18,7 @@ const loadHome = async (currentUser, dispatch) => {
     const lists = [
         {
             'page': 'home',
-            'title': 'Recently Watched',
+            'title': 'Continue Watching',
             'items': recentlyWatchedVideos.filter(v => v !== undefined && v.valid)
         },
         {
@@ -40,7 +40,7 @@ const loadTV = async (currentUser, dispatch) => {
     const lists = [
       {
         'page': 'tv',
-        'title': 'Recently Watched',
+        'title': 'Continue Watching',
         'items': recentlyWatchedShows.filter(v => v !== undefined && v.valid)
       },
       {

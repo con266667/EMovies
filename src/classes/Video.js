@@ -1,5 +1,5 @@
 export default class Video {
-    constructor(title, year, description, poster, backdrop, ids, isMovie) {
+    constructor(title, year, description, poster, backdrop, ids, isMovie, paused_at = '') {
         this.title = title;
         this.year = year;
         this.description = description;
@@ -9,6 +9,7 @@ export default class Video {
         this.isMovie = isMovie;
         this.episode = 0;
         this.season = 0;
+        this.paused_at = paused_at;
     }
 
     open (navigation) {
@@ -52,11 +53,11 @@ export default class Video {
     progress (state) {
         try {
             if (this.isMovie) {
-                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => v['type'] === 'movie' && v['movie'].ids.imdb === this.ids.imdb).progress;
+                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => v['type'] === 'movie' && v.movie.ids.imdb === this.ids.imdb).progress;
             } else {
-                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => v['type'] === 'episode' && v['show'].ids.imdb === this.ids.imdb && v['episode'].number === this.episode && v['episode'].season === this.season).progress;
+                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].filter(v => v['type'] === 'episode' && v.show.ids.imdb === this.ids.imdb).sort((a,b) => Date(b.paused_at) - Date(a.paused_at))[0].progress;
             }
-        } catch (e) {console.log(e)}
+        } catch (_) {}
         return 0;
     }
 

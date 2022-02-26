@@ -129,7 +129,7 @@ const Player = (props) => {
                     setCountdown(2);
                     if (progress() !== 0 && progress() <= 98) {
                         const p = parseInt((progress() / 100) * video.duration);
-                        videoRef.current.seek(p > 15 ? p - 15 : 0);
+                        videoRef.current.seek(p > 20 ? p - 20 : 0);
                     }
                 }}
                 // maxBitRate={100000}

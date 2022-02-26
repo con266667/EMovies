@@ -70,9 +70,9 @@ const Page = (props) => {
   useTVEventHandler(myTVEventHandler);
 
   const clearYoutubeKey = () => {
-    if (playTimeout.current) {
-      clearTimeout(playTimeout.current);
-    }
+    // if (playTimeout.current) {
+    //   clearTimeout(playTimeout.current);
+    // }
 
     if (trailerTimeout.current) {
       clearTimeout(trailerTimeout.current);
@@ -80,21 +80,17 @@ const Page = (props) => {
 
     setTimeout(() => {
       setTrailerUrl('');
-    }, 550);
+    }, 50);
   }
 
   const selectVideo = async (video) => {
-    setTimeout(() => {
-      playTimeout.current = setTimeout(async () => {
-        setSelected(video);
-        trailerTimeout.current = setTimeout(async () => {
-          if (selectedTitleRef.current === video.title) {
-            const _trailerUrl = await trailerId(video);
-            setTrailerUrl(_trailerUrl);
-          }
-        }, 2000);
-      }, 200);
-    }, 30);
+    setSelected(video);
+    trailerTimeout.current = setTimeout(async () => {
+      if (selectedTitleRef.current === video.title) {
+        const _trailerUrl = await trailerId(video);
+        setTrailerUrl(_trailerUrl);
+      }
+    }, 1000);
   }
 
   return (

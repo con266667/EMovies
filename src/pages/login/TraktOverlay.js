@@ -29,15 +29,11 @@ function TraktOverlay(props) {
                 response.then((res) => {
                     if (res.status === 200) {
                         token = res.data['access_token'];
-                        console.log(token);
-                        // addToken(token);
                         getUserInfoFromToken(token);
                         clearInterval(poll);
                         props.dismiss();
                     }
-                }).catch((err) => {
-                    console.log("Not ready yet");
-                });
+                }).catch((_) => {});
                 tries++;
             }, props.interval * 1000);
         }
