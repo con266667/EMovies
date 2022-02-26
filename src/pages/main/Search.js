@@ -18,8 +18,13 @@ const SearchPage = (props) => {
     }
 
     const openShow = async (show) => {
-        const shows = (await searchShow(show)).filter(s => s.show.title.toLowerCase() === show.toLowerCase());
-        props.openShow(shows[0]);
+        const _show = await searchShow(show);
+        if (_show.isMovie) {
+            _show.open(props.navigation);
+        } else {
+            _show.openShow(props.navigation);
+        }
+        // props.openShow(shows[0]);
     }
 
     const firstResultRef = useRef(null);
@@ -81,7 +86,7 @@ const SearchPage = (props) => {
                             <TouchableOpacity 
                                 key={index}
                                 onPress={() => {
-                                    openShow(result.name);
+                                    openShow(result);
                                 }}
                                 nextFocusLeft={index % 4 === 0 ? findNodeHandle(props.letterRefs['F'].current) : null}
                                 ref={(ref) => {

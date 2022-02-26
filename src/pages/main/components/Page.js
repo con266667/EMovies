@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactNative, {
+    useTVEventHandler,
     Image,
     StatusBar,
     StyleSheet,
@@ -40,8 +41,8 @@ const Page = (props) => {
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/800px-A_black_image.jpg'
   });
   // const [playTimeout, setPlayTimeout] = useState(null);
-  var playTimeout = null;
-  var trailerTimeout = null;
+  var playTimeout = useRef();
+  var trailerTimeout = useRef();
   const [playTrailer, setPlayTrailer] = useState(false);
   const selectedTitleRef = useRef();
 
@@ -60,9 +61,21 @@ const Page = (props) => {
     }
   }, [selected]);
 
+  const myTVEventHandler = evt => {    
+    if (evt.eventType === 'right' || evt.eventType === 'left' || evt.eventType === 'up' || evt.eventType === 'down' || evt.eventType === 'select') {
+      clearYoutubeKey();
+    }
+  };
+
+  useTVEventHandler(myTVEventHandler);
+
   const clearYoutubeKey = () => {
-    if (playTimeout) {
-      clearTimeout(playTimeout);
+    if (playTimeout.current) {
+      clearTimeout(playTimeout.current);
+    }
+
+    if (trailerTimeout.current) {
+      clearTimeout(trailerTimeout.current);
     }
 
     setTimeout(() => {
@@ -70,18 +83,18 @@ const Page = (props) => {
     }, 550);
   }
 
-  const selectVideo = async (video) => {   
-    playTimeout = setTimeout(async () => {
-      setSelected(video);      
-      // setTrailerUrl(_trailerUrl);
-      setTimeout(async () => {
-        console.log(selectedTitleRef);
-        if (selectedTitleRef.current === video.title) {
-          const _trailerUrl = await trailerId(video);
-          setTrailerUrl(_trailerUrl);
-        }
-      }, 2000);
-    }, 550);
+  const selectVideo = async (video) => {
+    setTimeout(() => {
+      playTimeout.current = setTimeout(async () => {
+        setSelected(video);
+        trailerTimeout.current = setTimeout(async () => {
+          if (selectedTitleRef.current === video.title) {
+            const _trailerUrl = await trailerId(video);
+            setTrailerUrl(_trailerUrl);
+          }
+        }, 2000);
+      }, 200);
+    }, 30);
   }
 
   return (

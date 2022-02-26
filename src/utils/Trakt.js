@@ -137,12 +137,11 @@ export const getTopShows = async () => {
     return await getTmdbUrl('https://api.themoviedb.org/3/discover/tv?api_key=6ba0d338722bb3a7b301fdb45104bfcd', false);
 }
 
-export const searchShow = async (title) => {
-    const response = await axios.get(`https://api.trakt.tv/search/show?query=${title}`, {headers: { 
-        'trakt-api-key': api_key,
-        'Content-Type': 'application/json',
-    }});
-    return response.data;
+export const searchShow = async (show) => {
+    return await getVideoObject({
+        'isMovie': show['media_type'] === 'movie',
+        'video': show
+    });
 }
 
 const stripVideos = (videos) => {

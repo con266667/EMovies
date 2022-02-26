@@ -28,7 +28,7 @@ const SmallCard = (props) => {
                 nextFocusLeft = {props.index === 0 ? findNodeHandle(props.sideRefs[props.list.page].current) : null}
                 nextFocusRight = {props.isLast ? findNodeHandle(touchableRef.current) : null}
                 nextFocusUp = {props.isTopRow ? findNodeHandle(touchableRef.current) : null}
-                onBlur={() => props.clearYoutubeKey()}
+                // onBlur={() => props.clearYoutubeKey()}
                 activeOpacity={.2}
                 onFocus={() => {
                     props.setSelected(props.item);

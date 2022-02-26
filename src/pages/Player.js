@@ -118,8 +118,6 @@ const Player = (props) => {
         setVideoInfo(info);
     }
 
-    // console.log(state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => (v['movie'] ?? v['show']).ids.imdb === routeParams.video.ids.imdb));
-
     return (
         <View style={styles.main} >
             <Webview handleLink={handleLink} url={url}></Webview>

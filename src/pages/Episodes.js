@@ -36,7 +36,6 @@ const Episodes = (props) => {
                           nextFocusLeft={findNodeHandle(props.seasonRefs[props.selectedSeason])}
                           ref={(ref) => {
                               // if (index === 0 && firstEpisodeRefs[episode.season] === undefined) {
-                              //     console.log(episode.season)
                               //     firstEpisodeRefs[episode.season] = ref;
                               // }
                           }}
