@@ -78,10 +78,10 @@
                         style={styles.icon} />
                 </TouchableOpacity>
                 }
-                {listFirstRefs['moviesTrending'] !== undefined &&
+                {listFirstRefs['moviesContinue Watching'] !== undefined &&
                 <TouchableOpacity 
                     onFocus={() => setPage('movies')} 
-                    nextFocusRight={findNodeHandle(listFirstRefs['moviesTrending'].current)}
+                    nextFocusRight={findNodeHandle(listFirstRefs['moviesContinue Watching'].current)}
                     ref={(ref) => sideRefs.movies.current = ref}>
                     <Video 
                         path={state.page.page.page === 'movies' ? '#fff' : '#666'} 

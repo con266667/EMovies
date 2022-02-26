@@ -102,17 +102,19 @@ export const getRecentlyWatchedShows = async (userdata, dispatch) => {
 export const getRecentlyWatchedVideos = async (userdata, dispatch) => {
     const response = await axios.get('https://api.trakt.tv/sync/playback', defaultConfig(userdata));
     dispatch({ type: 'UPDATE_WATCH_PROGRESS', payload: {'uuid': userdata.uuid, 'watchProgress': response.data} })
-    movies = await storeVideoListData(response.data.filter(video => video.type === 'movie' && video.progress < 95), true);
-    shows = await storeVideoListData(response.data.filter(video => video.type !== 'movie'), false);
+    const movies = await storeVideoListData(response.data.filter(video => video.type === 'movie' && video.progress < 95), true);
+    const shows = await storeVideoListData(response.data.filter(video => video.type !== 'movie'), false);
     return [...movies, ...shows].sort((a, b) => new Date(b.paused_at) - new Date(a.paused_at));
 }
 
 export const getRecomededVideos = async (userdata, dispatch) => {
-    const moviesRepsonse = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
-    const showsResponse = await axios.get('https://api.trakt.tv/recommendations/shows', defaultConfig(userdata));
-    movies = await storeVideoListData(moviesRepsonse.data, true);
-    shows = await storeVideoListData(showsResponse.data, false);
-    return [...movies, ...shows];
+    // const moviesRepsonse = await axios.get('https://api.trakt.tv/recommendations/movies', defaultConfig(userdata));
+    // const showsResponse = await axios.get('https://api.trakt.tv/recommendations/shows', defaultConfig(userdata));
+    const response = await axios.get('https://api.trakt.tv/recommendations', defaultConfig(userdata));
+    // movies = await storeVideoListData(moviesRepsonse.data, true);
+    // shows = await storeVideoListData(showsResponse.data, false);
+    const videos = await storeVideoListData(response.data, false);
+    return videos;
 }
 
 export const getShowEpisodes = async (traktid, dispatch) => {
@@ -154,7 +156,11 @@ const stripVideo = (video) => {
     return strippedVideo;
 }
 
-const videoObjectFromTrakt = async (video, isMovie, orig) => {
+const videoObjectFromTrakt = async (video, _isMovie, orig) => {
+    var isMovie = _isMovie;
+    if (orig.type !== undefined) {
+        isMovie = orig.type === 'movie';
+    }
     var tmdbInfo = await getTmdbInfo(video.ids.tmdb, isMovie);
     return new Video(
         (isMovie ? tmdbInfo.title : tmdbInfo.name), 

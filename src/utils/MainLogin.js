@@ -1,9 +1,10 @@
-import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedShows, getRecentlyWatchedVideos, getRecomededVideos, getTopMovies, getTopShows } from "./Trakt";
+import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedVideos, getRecomededVideos, getTopMovies, getTopShows } from "./Trakt";
 
 export const loadLists = async (currentUser, dispatch) => {
-    const home = await loadHome(currentUser, dispatch);
-    const tv = await loadTV(currentUser, dispatch);
-    const movies = await loadMovies(currentUser, dispatch);
+    const rw = (await getRecentlyWatchedVideos(currentUser, dispatch)).filter(v => v !== undefined && v.valid);
+    const home = await loadHome(currentUser, rw, dispatch);
+    const tv = await loadTV(currentUser, rw, dispatch);
+    const movies = await loadMovies(currentUser, rw, dispatch);
 
     dispatch({ type: 'UPDATE_LISTS', payload: {
         lists: [...home, ...tv, ...movies],
@@ -11,8 +12,7 @@ export const loadLists = async (currentUser, dispatch) => {
     }});
 }
 
-const loadHome = async (currentUser, dispatch) => {
-    const recentlyWatchedVideos = await getRecentlyWatchedVideos(currentUser, dispatch);
+const loadHome = async (currentUser, recentlyWatchedVideos, dispatch) => {
     const recommendations = await getRecomededVideos(currentUser, dispatch);
 
     const lists = [
@@ -31,8 +31,8 @@ const loadHome = async (currentUser, dispatch) => {
     return lists;
 }
 
-const loadTV = async (currentUser, dispatch) => {
-    const recentlyWatchedShows = await getRecentlyWatchedShows(currentUser, dispatch);
+const loadTV = async (currentUser, recentlyWatchedVideos, dispatch) => {
+    const recentlyWatchedShows = recentlyWatchedVideos.filter(v => !v.isMovie);
     const topShows = await getTopShows();
     const actionShows = await getActionShows();
     const comedyShows = await getComedyShows();
@@ -41,7 +41,7 @@ const loadTV = async (currentUser, dispatch) => {
       {
         'page': 'tv',
         'title': 'Continue Watching',
-        'items': recentlyWatchedShows.filter(v => v !== undefined && v.valid)
+        'items': recentlyWatchedShows
       },
       {
         'page': 'tv',
@@ -63,12 +63,17 @@ const loadTV = async (currentUser, dispatch) => {
     return lists;
 }
 
-const loadMovies = async (currentUser, dispatch) => {
+const loadMovies = async (currentUser, recentlyWatchedVideos, dispatch) => {
     const trendingMovies = await getTopMovies();
     const actionMovies = await getActionMovies();
     const comedyMovies = await getComedyMovies();
 
     const lists = [
+        {
+            'page': 'movies',
+            'title': 'Continue Watching',
+            'items': recentlyWatchedVideos.filter(v => v.isMovie && v !== undefined && v.valid)
+        },
         {
             'page': 'movies',
             'title': 'Trending',
