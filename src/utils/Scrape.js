@@ -15,34 +15,38 @@ export const scrapeView = (html) => {
 }
 
 export const getAllMoviesLink = async (title, year, episode = 0, season = 0) => {
-    const response = await fetch("https://allmoviesforyou.net/?s=" + title);
-    const html = await response.text();
-    const soup = new JSSoup(html);
-    const aTags = soup.findAll('a');
-    var finalATag;
-    aTags.forEach(aTag => {
-        if (
-            finalATag === undefined &&
-            aTag['descendants'].filter(x => x['name'] == 'span').filter(x => x['nextElement']['_text'] == year.toString()).length > 0
-        ) {
-            finalATag = aTag;
+    try {
+        const response = await fetch("https://allmoviesforyou.net/?s=" + title);
+        const html = await response.text();
+        const soup = new JSSoup(html);
+        const aTags = soup.findAll('a');
+        var finalATag;
+        aTags.forEach(aTag => {
+            if (
+                finalATag === undefined &&
+                aTag['descendants'].filter(x => x['name'] == 'span').filter(x => x['nextElement']['_text'] == year.toString()).length > 0
+            ) {
+                finalATag = aTag;
+            }
+        });
+
+        var link;
+        if (finalATag == null) {
+            link = aTags[0]['attrs']['href'];
+        } else {
+            link = finalATag['attrs']['href'];
         }
-    });
 
-    var link;
-    if (finalATag == null) {
-        link = aTags[0]['attrs']['href'];
-    } else {
-        link = finalATag['attrs']['href'];
+        if (episode > 0 && link !== "#") {
+            link = link.substring(0, link.length - 1);
+            link = link + '-' + season + 'x' + episode + '/';
+            link = link.replace('/series/', '/episode/');
+        }
+
+        return link === '#' ? await getVHLink(title, year) : link;
+    } catch (error) {
+        return await getVHLink(title, year);
     }
-
-    if (episode > 0 && link !== "#") {
-        link = link.substring(0, link.length - 1);
-        link = link + '-' + season + 'x' + episode + '/';
-        link = link.replace('/series/', '/episode/');
-    }
-
-    return link === '#' ? await getVHLink(title, year) : link;
 }
 
 export const getVHLink = async (title, year) => {
