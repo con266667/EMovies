@@ -26,6 +26,14 @@ export const getComedyMovies = async () => {
     return await getMovieGenre(35);
 }
 
+export const getDocumentaryMovies = async () => {
+    return await getMovieGenre(99);
+}
+
+export const getHorrorMovies = async () => {
+    return await getMovieGenre(27);
+}
+
 export const getActionShows = async () => {
     return await getShowGenre(10759);
  }
@@ -35,7 +43,7 @@ export const getActionShows = async () => {
  }
 
 const getMovieGenre = async (genre) => {
-   return await getTmdbUrl(`https://api.themoviedb.org/3/discover/movie?api_key=6ba0d338722bb3a7b301fdb45104bfcd&with_genres=${genre}&release_date.lte=${new Date().getFullYear() - 1}&with_original_language=en`, true);
+   return await getTmdbUrl(`https://api.themoviedb.org/3/discover/movie?api_key=6ba0d338722bb3a7b301fdb45104bfcd&with_genres=${genre}&release_date.gte=${new Date().getFullYear() - 1}&with_original_language=en`, true);
 }
 
 const getShowGenre = async (genre) => {

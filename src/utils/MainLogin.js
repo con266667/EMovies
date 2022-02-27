@@ -1,4 +1,4 @@
-import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getRecentlyWatchedVideos, getRecomededVideos, getTopMovies, getTopShows } from "./Trakt";
+import { getActionMovies, getActionShows, getComedyMovies, getComedyShows, getDocumentaryMovies, getHorrorMovies, getRecentlyWatchedVideos, getRecomededVideos, getTopMovies, getTopShows } from "./Trakt";
 
 export const loadLists = async (currentUser, dispatch) => {
     const rw = (await getRecentlyWatchedVideos(currentUser, dispatch)).filter(v => v !== undefined && v.valid);
@@ -67,6 +67,8 @@ const loadMovies = async (currentUser, recentlyWatchedVideos, dispatch) => {
     const trendingMovies = await getTopMovies();
     const actionMovies = await getActionMovies();
     const comedyMovies = await getComedyMovies();
+    const documentaryMovies = await getDocumentaryMovies();
+    const horrorMovies = await getHorrorMovies();
 
     const lists = [
         {
@@ -88,6 +90,16 @@ const loadMovies = async (currentUser, recentlyWatchedVideos, dispatch) => {
             'page': 'movies',
             'title': 'Comedy',
             'items': comedyMovies.filter(v => v !== undefined && v.valid)
+        },
+        {
+            'page': 'movies',
+            'title': 'Documentary',
+            'items': documentaryMovies.filter(v => v !== undefined && v.valid)
+        },
+        {
+            'page': 'movies',
+            'title': 'Horror',
+            'items': horrorMovies.filter(v => v !== undefined && v.valid)
         }
     ];
 

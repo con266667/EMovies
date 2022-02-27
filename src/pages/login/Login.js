@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import axios from 'axios';
 import TraktOverlay from './TraktOverlay';
 import { loadLists } from '../../utils/MainLogin';
@@ -20,6 +20,7 @@ import { loadLists } from '../../utils/MainLogin';
     const [deviceCode, setDeviceCode] = useState('');
     const [interval, setInterval] = useState(null);
     const [showOverlay, setShowOverlay] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const loginDetails = async () => {
         try {
@@ -36,6 +37,7 @@ import { loadLists } from '../../utils/MainLogin';
     }
 
     const loadUser = async (user) => {
+        setLoading(true);
         dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
         await loadLists(user, dispatch);
         navigation.navigate('Main');
@@ -43,6 +45,7 @@ import { loadLists } from '../../utils/MainLogin';
 
     return (
         <View style={styles.container}>
+            {!loading ? <>
             {state.auth.auth.users.map((user) => 
                 <TouchableOpacity 
                     style={styles.option} 
@@ -57,6 +60,7 @@ import { loadLists } from '../../utils/MainLogin';
                 <Text style={styles.optionText}>Add User</Text>
             </TouchableOpacity>
             {showOverlay && <TraktOverlay userCode={userCode} interval={interval} deviceCode={deviceCode} dismiss={() => setShowOverlay(false)}/>}
+            </> : <ActivityIndicator size={100} color="#fff" />}
         </View>
     )
  }

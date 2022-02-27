@@ -153,7 +153,7 @@ const Player = (props) => {
                     setCountdown(2);
                     setPreparing(false);
                     logTraktPlay();
-                    if (progress !== undefined && progress !== 0 && progress <= 98) {
+                    if (progress !== undefined && progress !== 0 && progress <= 95) {
                         videoRef.current.seek(parseInt((progress / 100) * video.duration));
                     }
                 }}

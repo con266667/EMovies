@@ -55,7 +55,7 @@ export default class Video {
             if (this.isMovie) {
                 return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].find(v => v['type'] === 'movie' && v.movie.ids.imdb === this.ids.imdb).progress;
             } else {
-                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].filter(v => v['type'] === 'episode' && v.show.ids.imdb === this.ids.imdb).sort((a,b) => Date(b.paused_at) - Date(a.paused_at))[0].progress;
+                return state.auth.auth.watchProgress[state.auth.auth.currentUserUUID].filter(v => v['type'] === 'episode' && v.show.ids.imdb === this.ids.imdb && (this.episode === 0 || (v.episode.number === this.episode && v.episode.season === this.season))).sort((a,b) => Date(b.paused_at) - Date(a.paused_at))[0].progress;
             }
         } catch (_) {}
         return 0;

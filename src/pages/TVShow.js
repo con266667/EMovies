@@ -97,7 +97,7 @@ const TVShow = (props) => {
       && playback[0] !== undefined
       && seasons.length > playback[0].episode.season
     ) {
-      if (playback[0].progress > 98) {
+      if (playback[0].progress > 95) {
         return getNextEpisode(playback[0].episode);
       } else {
         return playback[0].episode;
@@ -192,7 +192,7 @@ const TVShow = (props) => {
                 source={
                   {uri: 'https://image.tmdb.org/t/p/w500/' + resumeEpisode().still_path}
                 } />
-                <View opacity={playback[0] !== null && playback[0].progress < 98 ? 1 : 0}>
+                <View opacity={playback[0] !== null && playback[0] > 0 && playback[0].progress < 95 ? 1 : 0}>
                   <View style={styles.progressBack} width={325} height={5} />
                   <View style={styles.progress} width={playback[0] !== null ? playback[0].progress * 3.25 : 0} height={5} />
                 </View>

@@ -66,7 +66,7 @@ const Page = (props) => {
   useTVEventHandler(myTVEventHandler);
 
   const pageInput = () => {
-    tempSelected.current = dft;
+    // tempSelected.current = dft;
 
     if (trailerTimeout.current) {
       clearTimeout(trailerTimeout.current);
@@ -81,18 +81,20 @@ const Page = (props) => {
     }
 
     inputTimer.current = setTimeout(async () => {
-      setSelected(tempSelected.current);
-      trailerTimeout.current = setTimeout(async () => {
-        const _trailerUrl = await trailerId(tempSelected.current);
-        setTrailerUrl(_trailerUrl);
-      }, 2500);
+      if (selected.ids.imdb !== tempSelected.current.ids.imdb) {
+        setSelected(tempSelected.current);
+        trailerTimeout.current = setTimeout(async () => {
+          const _trailerUrl = await trailerId(tempSelected.current);
+          setTrailerUrl(_trailerUrl);
+        }, 2500);
+      }
     }, 500);
   }
 
   const selectVideo = async (video) => {
     setTimeout(() => {
       tempSelected.current = video;
-    }, 50);
+    }, 100);
     // setTimeout(() => {
     //   playTimeout.current = setTimeout(async () => {
     //     setSelected(video);
