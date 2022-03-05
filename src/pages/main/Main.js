@@ -58,6 +58,7 @@
             <View style={styles.sidebar}>
                 {listFirstRefs['homeContinue Watching'] !== undefined &&
                 <TouchableOpacity
+                    hasTVPreferredFocus={true}
                     // hasTVPreferredFocus={state.page.page.page === 'home'}
                     onFocus={() => setPage('home')} 
                     nextFocusRight={findNodeHandle(listFirstRefs['homeContinue Watching'].current)}
@@ -172,7 +173,7 @@
      content: {
          flex: 1,
          flexDirection: 'row',
-         backgroundColor: 'rgb(18, 18, 18)',
+         backgroundColor: 'black',
      },
      sidebar: {
          justifyContent: 'center',

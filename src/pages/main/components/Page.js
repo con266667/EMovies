@@ -81,7 +81,7 @@ const Page = (props) => {
     }
 
     inputTimer.current = setTimeout(async () => {
-      if (selected.ids.imdb !== tempSelected.current.ids.imdb) {
+      if (tempSelected.current !== undefined && selected.ids.imdb !== tempSelected.current.ids.imdb) {
         setSelected(tempSelected.current);
         trailerTimeout.current = setTimeout(async () => {
           const _trailerUrl = await trailerId(tempSelected.current);
@@ -95,17 +95,6 @@ const Page = (props) => {
     setTimeout(() => {
       tempSelected.current = video;
     }, 100);
-    // setTimeout(() => {
-    //   playTimeout.current = setTimeout(async () => {
-    //     setSelected(video);
-    //     trailerTimeout.current = setTimeout(async () => {
-    //       if (selectedTitleRef.current === video.title) {
-    //         const _trailerUrl = await trailerId(video);
-    //         setTrailerUrl(_trailerUrl);
-    //       }
-    //     }, 1000);
-    //   }, 300);
-    // }, 50);
   }
 
   return (
@@ -193,7 +182,7 @@ const Page = (props) => {
           }}/> : <View />
         }
         <LinearGradient 
-          colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)']}
+          colors={['rgba(1, 1, 1, 1)', 'rgba(0, 0, 0, 0)']}
           style={{
             position: 'absolute',
             width: Dimensions.get('window').width - 300,
@@ -207,7 +196,7 @@ const Page = (props) => {
         />
 
         <LinearGradient
-          colors={['rgba(18, 18, 18, 1)', 'rgba(0, 0, 0, 0)']}
+          colors={['rgba(0, 0, 0, 1)', 'rgba(0, 0, 0, 0)']}
           stops={[0, 1]}
           style={{
             position: 'absolute',

@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        backgroundColor: 'rgb(18, 18, 18)',
+        backgroundColor: 'black',
     },
     option: {
         backgroundColor: '#fff',

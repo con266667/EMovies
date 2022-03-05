@@ -1,33 +1,26 @@
 import { BlurView } from '@react-native-community/blur';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, findNodeHandle, Image, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { ActivityIndicator, findNodeHandle, Image, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllMoviesLink } from '../utils/Scrape';
 import { getTmdbSeason, getTmdbShow } from '../utils/tmdb';
-import { getPlayback, getShowEpisodes } from '../utils/Trakt';
 import Episodes from './Episodes';
 import Seasons from './Seasons';
-import Webview from '../utils/Webview';
+import Season from '../classes/Season';
   
 
 const TVShow = (props) => {
   const state = useSelector(state => state);
-  const show = props.route.params.show;
-  const dispatch = useDispatch();
+  const [show, setShow] = useState(props.route.params.show);
   const [button, setButton] = useState('play');
-  const [url, setUrl] = useState('');
   const [episodeView, setEpisodeView] = useState(false);
   const [selectedSeason, setSeason] = useState(0);
   const [loadingEpisode, setLoadingEpisode] = useState({});
   const [seasonRefs, setSeasonRefs] = useState({});
-  const [seasons, setSeasons] = useState([]);
   const [playback, setPlayback] = useState(
     state.auth.auth.watchProgress[state.auth.auth.currentUserUUID]
     .filter(playback => playback.show !== undefined && playback.show.ids.trakt === show.ids.trakt)
     .sort((a, b) => Date(a.paused_at) - Date(b.paused_at)) ?? []);
-  const [tmdbShow, setTmdbShow] = useState(null);
   const [tmdbFetch, setTmdbFetch] = useState(false);
-  const [tmdbSeasons, setTmdbSeasons] = useState([]);
 
   const getShow = async (show, episode) => {
     const _show = show;
@@ -36,97 +29,27 @@ const TVShow = (props) => {
     _show.open(props.navigation);
   }
 
-  const currentUser = () => state.auth.auth.users.filter(user => user.uuid === state.auth.auth.currentUserUUID)[0];
-
   const getTmdb = async () => {
     setTmdbFetch(true);
     const tmdb = await getTmdbShow(show.ids.tmdb);
-    setTmdbShow(tmdb);
+    const seasons = [];
     for (var i = 0; i < tmdb.seasons.length; i++) {
-      const season = tmdb.seasons[i];
-      const seasonData = await getTmdbSeason(show.ids.tmdb, season.season_number);
-      setTmdbSeasons(tmdbSeasons => [...tmdbSeasons, seasonData]);
+      const seasonData = await getTmdbSeason(show.ids.tmdb, tmdb.seasons[i].season_number);
+      seasons.push(new Season(seasonData));
     }
+    const _show = show;
+    _show.seasons = seasons;
+    setShow(_show);
   }
 
   useEffect(() => {
-    const getSeasons = async () => {
-        var seasons = await getShowEpisodes(show.ids.trakt, dispatch);
-        if (seasons[0].number === 1) {
-          seasons.unshift({
-            number: 0,
-          });
-        }
-        setSeasons(seasons);
-    }
-
-    const getPlaybackData = async () => {
-      var _playback = await getPlayback(currentUser(), dispatch, state);
-      _playback = _playback.filter(playback => playback.show !== undefined && playback.show.ids.trakt === show.ids.trakt).sort((a, b) => Date(a.paused_at) - Date(b.paused_at));
-      setPlayback(_playback);
-    }
-
-    if (seasons.length === 0) {
-        getSeasons();
-    }
-
-    if (playback.length === 0) {
-      getPlaybackData();
-    }
-
     if (!tmdbFetch) {
       getTmdb();
     }
 
-  }, [seasons, playback, tmdbFetch]);
+  }, [tmdbFetch]);
 
   const episodeButtonRef = useRef(null);
-
-  const playbackEpisode = (season, episode) => {
-    const _playback = playback.filter(_episode => _episode.episode.season === season && _episode.episode.number === episode);
-    if (_playback.length > 0) {
-      return _playback[0];
-    } else {
-      return null;
-    }
-  }
-
-  const playbackResumeEpisode = () => {
-    if (
-      playback.length > 0
-      && playback[0] !== undefined
-      && seasons.length > playback[0].episode.season
-    ) {
-      if (playback[0].progress > 95) {
-        return getNextEpisode(playback[0].episode);
-      } else {
-        return playback[0].episode;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  const getNextEpisode = (episode) => {
-    if (seasons[episode.season].episodes.length > episode.number) {
-        return seasons[episode.season].episodes[episode.number];
-    } else if (seasons.length > episode.season + 1) {
-        return seasons[episode.season + 1].episodes[0];
-    } else {
-        return null;
-    }
-  }
-
-  const resumeEpisode = () => {
-    if (
-      playbackResumeEpisode() !== null
-      && tmdbSeasons.filter(_season => _season.season_number === playbackResumeEpisode().season).length > 0 
-    ) {
-      var nextEpisode = playbackResumeEpisode();
-      return tmdbSeasons.filter(_season => _season.season_number === nextEpisode.season)[0].episodes.filter(_episode => _episode.episode_number === nextEpisode.number)[0];
-    } 
-    return null;
-  }
 
   return (
     <View style={{backgroundColor: '#000'}}>
@@ -150,14 +73,14 @@ const TVShow = (props) => {
               hasTVPreferredFocus = {true}
               onFocus={() => {setButton('play'); setEpisodeView(false); setSeason(0)}}
               onPress={() => {
-                getShow(show, playbackResumeEpisode() === null ? seasons[0].episodes[0] : playbackResumeEpisode());
+                getShow(show, show.lastPlayed(state) ?? show.getEpisode(state, 0, 0));
               }}
               onBlur={() => {setButton('')}}
               style={styles.textButton}
             >
               <View>
                 <Text style={[styles.textButton, {opacity: (button === 'play') ? 1 : 0.2}]}>{
-                  playbackResumeEpisode() === null ? 'Play Season 1 Episode 1' : ('Resume Season ' + playbackResumeEpisode().season + ' Episode ' + playbackResumeEpisode().number)
+                  !show.lastPlayed(state) ? 'Play Season 1 Episode 1' : ('Resume Season ' + show.lastPlayed(state).season + ' Episode ' + show.lastPlayed(state).number)
                 }</Text>
               </View>
             </TouchableWithoutFeedback>
@@ -177,54 +100,51 @@ const TVShow = (props) => {
               onPress={() => {
                 props.navigation.goBack();
               }}
-              style={styles.textButton}
-            >
+              style={styles.textButton}>
               <View>
                 <Text style={[styles.textButton, {opacity: (button === 'back') ? 1 : 0.2}]}>Back</Text>
               </View>
             </TouchableWithoutFeedback>
           </View>
           {
-            (button === 'play' && resumeEpisode() !== null) &&
+            (button === 'play' && show.lastPlayed(state)) &&
             <View style={styles.resumeView}>
               <Image
                 style={styles.resumeImage}
                 source={
-                  {uri: 'https://image.tmdb.org/t/p/w500/' + resumeEpisode().still_path}
+                  {uri: 'https://image.tmdb.org/t/p/w500/' + show.lastPlayed(state).image ?? ''}
                 } />
                 <View opacity={playback[0] !== null && playback[0] > 0 && playback[0].progress < 95 ? 1 : 0}>
                   <View style={styles.progressBack} width={325} height={5} />
                   <View style={styles.progress} width={playback[0] !== null ? playback[0].progress * 3.25 : 0} height={5} />
                 </View>
                 <Text style={styles.resumeName}>
-                  {resumeEpisode().name}
+                  {show.lastPlayed(state).name}
                 </Text>
                 <Text style={styles.resumeDescription}>
-                  {resumeEpisode().overview}
+                  {show.lastPlayed(state).description}
                 </Text>
                 <ActivityIndicator 
                   style={styles.loadingResumeEpisode} 
                   size={120} color={'#fff'} 
-                  opacity={loadingEpisode === playbackResumeEpisode() ? 1 : 0} 
+                  opacity={loadingEpisode === show.lastPlayed(state) ? 1 : 0} 
                 />
             </View>
           }
           <Seasons 
             button={button} 
-            tmdbShow={tmdbShow}
+            show={show}
             setEpisodeView={setEpisodeView}
             setSeason={setSeason}
-            episodeButtonRef={episodeButtonRef}seasonName
+            episodeButtonRef={episodeButtonRef}
             seasonRefs={seasonRefs}
           />
           <Episodes 
             button={button} 
             loadingEpisode={loadingEpisode} 
-            playbackEpisode={playbackEpisode} 
-            tmdbSeasons={tmdbSeasons} 
             getShow={getShow} 
             show={show} 
-            seasons={seasons} 
+            state={state}
             episodeView={episodeView} 
             selectedSeason={selectedSeason} 
             seasonRefs={seasonRefs} />

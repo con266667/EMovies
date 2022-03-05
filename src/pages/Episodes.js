@@ -11,27 +11,27 @@ const Episodes = (props) => {
                 showsVerticalScrollIndicator={false}
                 >
                 {
-                ((props.selectedSeason <= 0 || props.tmdbSeasons.filter(_season => _season.season_number === props.selectedSeason).length === 0) ? [] : props.tmdbSeasons.filter(_season => _season.season_number === props.selectedSeason)[0].episodes).map((episode, index) => {
+                ((props.selectedSeason <= 0 || props.show.seasons.filter(_season => _season.number === props.selectedSeason).length === 0) ? [] : props.show.seasons.filter(_season => _season.number === props.selectedSeason)[0].episodes).map((episode, index) => {
                   return (
                     <View key={index} >
                       <Image
                         style={styles.episodeImage}
                         source={
-                          {uri: episode.still_path === null ? 'https://via.placeholder.com/300x450' : 'https://image.tmdb.org/t/p/w500/' + episode.still_path}
+                          {uri: episode.image === null ? 'https://via.placeholder.com/300x450' : 'https://image.tmdb.org/t/p/w500/' + episode.image}
                         } />
                       <View>
-                        <View style={styles.progressBack} opacity={props.playbackEpisode(props.selectedSeason, index + 1) !== null ? 1 : 0} width={275} height={5} />
-                        <View style={styles.progress} width={props.playbackEpisode(props.selectedSeason, index + 1) !== null ? props.playbackEpisode(props.selectedSeason, index + 1).progress * 2.75 : 0} height={5} />
+                        <View style={styles.progressBack} opacity={props.show.playbackEpisode(props.state, props.selectedSeason, index + 1) ? 1 : 0} width={275} height={5} />
+                        <View style={styles.progress} width={props.show.playbackEpisode(props.state, props.selectedSeason, index + 1) ? props.show.playbackEpisode(props.state, props.selectedSeason, index + 1).progress * 2.75 : 0} height={5} />
                       </View>
                       <ActivityIndicator 
                         style={styles.loadingSmallCard} 
                         size={80} color={'#fff'} 
-                        opacity={props.loadingEpisode === props.seasons[props.selectedSeason].episodes[index] ? 1 : 0} 
+                        opacity={props.show.seasons.length > props.selectedSeason && props.loadingEpisode === props.show.seasons[props.selectedSeason].episodes[index] ? 1 : 0} 
                         />
                       <TouchableOpacity
                           // activeOpacity={0.5}
                           onPress={() => {
-                              props.getShow(props.show, props.seasons[props.selectedSeason].episodes[index]);
+                              props.getShow(props.show, props.show.seasons[props.selectedSeason].episodes[index]);
                           }}
                           nextFocusLeft={findNodeHandle(props.seasonRefs[props.selectedSeason])}
                           ref={(ref) => {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         height: '80%',
     },
     episodes: {
-        marginLeft: 10,
+        marginLeft: 20,
     },
     seasonImage: {
       width: 100,
@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
       fontSize: 25,
       color: '#fff',
       marginBottom: 10,
+      marginLeft: 15,
     },
     seasonTitle: {
       marginTop: 32,

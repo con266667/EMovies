@@ -1,46 +1,63 @@
-import React from "react";
-import { ActivityIndicator, findNodeHandle, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { ActivityIndicator, Dimensions, findNodeHandle, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Episodes = (props) => {
+   const [seasonLocations, setSeasonLocations] = useState({});
+   const scrollview = useRef();
+  //  const seasonLocations = {};
+
     return (
         ((props.button === 'episodes' || props.episodeView) && props.selectedSeason !== 0) ?
         <View>
           <ScrollView 
-              style={styles.seasons}
+              // style={{paddingTop: Dimensions.get('window').height * 0.4}}
               showsVerticalScrollIndicator={false}
               opacity={(props.button === 'episodes' || props.episodeView) ? 1 : 0}
+              ref={scrollview}
               >
-              {(props.tmdbShow === null ? [] : props.tmdbShow.seasons.filter(season => season.season_number != 0)).map((season, index) => {
+                <View style={{paddingTop: Dimensions.get('window').height * 0.4}}/>
+              {(!props.show ? [] : props.show.seasons.filter(season => season.number != 0)).map((season, index) => {
                 return (
                   <TouchableOpacity
-                    // hasTVPreferredFocus = {selectedSeason === season.season_number}
+                    // hasTVPreferredFocus = {selectedSeason === season.number}
                     key={index}
                     onFocus={() => {
+                      if (!props.episodeView) {
                         props.setEpisodeView(true);
-                        props.setSeason(season.season_number);
+                      }
+                      props.setSeason(season.number);
+                      scrollview.current.scrollTo({x: 0, y: seasonLocations[season.number].y - Dimensions.get('window').height * 0.4, animated: true});
                     }}
                     onBlur={() => {
                         props.setEpisodeView(false);
                     }}
                     nextFocusLeft={findNodeHandle(props.episodeButtonRef.current)}
                     ref={(ref) => {
-                        if (props.seasonRefs[season.season_number] === undefined) {
-                            props.seasonRefs[season.season_number] = ref;
+                        if (props.seasonRefs[season.number] === undefined) {
+                            props.seasonRefs[season.number] = ref;
                         }
+                    }}
+                    onLayout={(event) => {
+                      const layout = event.nativeEvent.layout;
+                      setSeasonLocations({ ...seasonLocations, [season.number]: layout });
                     }}
                     // nextFocusRight={firstEpisodeRef}
                     >
                     <View>
-                      <Image 
+                      <Text style={styles.season}>{
+                        ('Season ' + season.number)
+                      }</Text>
+                      {/* <Image 
                         style={styles.seasonImage}
                         source={
                           {uri: season.poster_path === null ? 'https://via.placeholder.com/300x450' : 'https://image.tmdb.org/t/p/w300/' + season.poster_path}
                         }
-                      />
+                      /> */}
                     </View>
                   </TouchableOpacity>
                 )
               })}
+              <View style={{paddingTop: Dimensions.get('window').height * 0.6}}/>
           </ScrollView>
           </View> : <View />
     );
@@ -107,7 +124,12 @@ const styles = StyleSheet.create({
       opacity: 0.8,
     },
     seasons: {
-        height: '80%',
+        // height: '50%',
+    },
+    season: {
+      fontFamily: 'Inter-Bold',
+      fontSize: 20,
+      color: '#fff',
     },
     episodes: {
         marginLeft: 10,
