@@ -81,7 +81,7 @@ const SearchPage = (props) => {
             <ScrollView style={{margin: 10}} showsVerticalScrollIndicator={false} height={Dimensions.get('window').height}>
                 <View style={styles.results}>
                 {
-                    results.filter(r => r.poster_path !== undefined && r.popularity > 5 && r.original_language === 'en').map((result, index) => {
+                    results.filter(r => r.poster_path !== undefined).map((result, index) => {
                         return (
                             <TouchableOpacity 
                                 key={index}

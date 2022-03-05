@@ -63,8 +63,10 @@ function TraktOverlay(props) {
   return (
     <View style={styles.root}>
     <View style={styles.alert}>
-    <Text style={styles.title}>Sign in to Trakt</Text>
-    <Text style={styles.code}>Go to trakt.tv/activate</Text>
+    <Text style={styles.title}>Connect to Trakt</Text>
+    <Text style={styles.code}>Go to <Text style={{
+        fontWeight: 'bold'
+    }}>trakt.tv/activate</Text></Text>
     <Text style={styles.code}>{props.userCode}</Text>
     
     <TouchableOpacity onPress={props.dismiss}>
@@ -94,12 +96,13 @@ const styles = StyleSheet.create({
     title: {
         color: '#000',
         fontFamily: 'Inter-SemiBold',
-        fontSize: 20,
+        fontSize: 25,
         marginBottom: 12,
     },
     code: {
         color: '#000',
         fontFamily: 'Inter-Regular',
+        fontSize: 18,
     },
     cancel: {
         color: '#000',

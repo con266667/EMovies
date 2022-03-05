@@ -23,11 +23,6 @@ const Episodes = (props) => {
                         <View style={styles.progressBack} opacity={props.show.playbackEpisode(props.state, props.selectedSeason, index + 1) ? 1 : 0} width={275} height={5} />
                         <View style={styles.progress} width={props.show.playbackEpisode(props.state, props.selectedSeason, index + 1) ? props.show.playbackEpisode(props.state, props.selectedSeason, index + 1).progress * 2.75 : 0} height={5} />
                       </View>
-                      <ActivityIndicator 
-                        style={styles.loadingSmallCard} 
-                        size={80} color={'#fff'} 
-                        opacity={props.show.seasons.length > props.selectedSeason && props.loadingEpisode === props.show.seasons[props.selectedSeason].episodes[index] ? 1 : 0} 
-                        />
                       <TouchableOpacity
                           // activeOpacity={0.5}
                           onPress={() => {

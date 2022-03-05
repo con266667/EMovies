@@ -14,12 +14,12 @@ const TVShow = (props) => {
   const [button, setButton] = useState('play');
   const [episodeView, setEpisodeView] = useState(false);
   const [selectedSeason, setSeason] = useState(0);
-  const [loadingEpisode, setLoadingEpisode] = useState({});
+  const [watchNext, setWatchNext] = useState(null);
   const [seasonRefs, setSeasonRefs] = useState({});
-  const [playback, setPlayback] = useState(
+  const playback =
     state.auth.auth.watchProgress[state.auth.auth.currentUserUUID]
     .filter(playback => playback.show !== undefined && playback.show.ids.trakt === show.ids.trakt)
-    .sort((a, b) => Date(a.paused_at) - Date(b.paused_at)) ?? []);
+    .sort((a, b) => Date(a.paused_at) - Date(b.paused_at)) ?? [];
   const [tmdbFetch, setTmdbFetch] = useState(false);
 
   const getShow = async (show, episode) => {
@@ -39,6 +39,7 @@ const TVShow = (props) => {
     }
     const _show = show;
     _show.seasons = seasons;
+    setWatchNext(_show.watchNext(state));
     setShow(_show);
   }
 
@@ -73,14 +74,13 @@ const TVShow = (props) => {
               hasTVPreferredFocus = {true}
               onFocus={() => {setButton('play'); setEpisodeView(false); setSeason(0)}}
               onPress={() => {
-                getShow(show, show.lastPlayed(state) ?? show.getEpisode(state, 0, 0));
+                getShow(show, watchNext ?? show.getEpisode(1, 1));
               }}
               onBlur={() => {setButton('')}}
-              style={styles.textButton}
-            >
+              style={styles.textButton}>
               <View>
                 <Text style={[styles.textButton, {opacity: (button === 'play') ? 1 : 0.2}]}>{
-                  !show.lastPlayed(state) ? 'Play Season 1 Episode 1' : ('Resume Season ' + show.lastPlayed(state).season + ' Episode ' + show.lastPlayed(state).number)
+                  !watchNext ? 'Play Season 1 Episode 1' : ('Resume Season ' + watchNext.season + ' Episode ' + watchNext.number)
                 }</Text>
               </View>
             </TouchableWithoutFeedback>
@@ -107,28 +107,23 @@ const TVShow = (props) => {
             </TouchableWithoutFeedback>
           </View>
           {
-            (button === 'play' && show.lastPlayed(state)) &&
+            (button === 'play' && watchNext) &&
             <View style={styles.resumeView}>
               <Image
                 style={styles.resumeImage}
                 source={
-                  {uri: 'https://image.tmdb.org/t/p/w500/' + show.lastPlayed(state).image ?? ''}
+                  {uri: 'https://image.tmdb.org/t/p/w500/' + watchNext.image ?? ''}
                 } />
                 <View opacity={playback[0] !== null && playback[0] > 0 && playback[0].progress < 95 ? 1 : 0}>
                   <View style={styles.progressBack} width={325} height={5} />
                   <View style={styles.progress} width={playback[0] !== null ? playback[0].progress * 3.25 : 0} height={5} />
                 </View>
                 <Text style={styles.resumeName}>
-                  {show.lastPlayed(state).name}
+                  {watchNext.name}
                 </Text>
                 <Text style={styles.resumeDescription}>
-                  {show.lastPlayed(state).description}
+                  {watchNext.description}
                 </Text>
-                <ActivityIndicator 
-                  style={styles.loadingResumeEpisode} 
-                  size={120} color={'#fff'} 
-                  opacity={loadingEpisode === show.lastPlayed(state) ? 1 : 0} 
-                />
             </View>
           }
           <Seasons 
@@ -141,7 +136,6 @@ const TVShow = (props) => {
           />
           <Episodes 
             button={button} 
-            loadingEpisode={loadingEpisode} 
             getShow={getShow} 
             show={show} 
             state={state}

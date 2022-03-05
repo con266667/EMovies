@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import axios from 'axios';
@@ -36,11 +36,16 @@ import { loadLists } from '../../utils/MainLogin';
         }
     }
 
+    // useEffect(() => {
+    //     setLoading(loading);
+    // }, [loading])
+
     const loadUser = async (user) => {
         setLoading(true);
         dispatch({ type: 'SET_CURRENT_USER', payload: user.uuid });
         await loadLists(user, dispatch);
         navigation.navigate('Main');
+        setLoading(false);
     }
 
     return (
@@ -55,7 +60,9 @@ import { loadLists } from '../../utils/MainLogin';
                 </TouchableOpacity>
             )}
            
-            <TouchableOpacity style={styles.option}
+            <TouchableOpacity 
+                hasTVPreferredFocus={true}
+                style={styles.option}
                 onPress={() => {loginDetails()}} >
                 <Text style={styles.optionText}>Add User</Text>
             </TouchableOpacity>

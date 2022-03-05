@@ -58,7 +58,39 @@ export default class Video {
         return undefined;
     }
 
-    lastPlayed (state, seasons, playback) {
+    nextEpisode (episode) {
+        var _episode;
+        if (episode.season < this.seasons.length) {
+            if (episode.number + 1 < this.seasons[episode.season].episodes.length) {
+                _episode = this.seasons[episode.season].episodes[episode.number + 1];
+            }
+        } else if (episode.season + 1 < this.seasons.length) {
+            _episode = this.seasons[episode.season + 1].episodes[0];
+        }
+        if (_episode === undefined || _episode.release > new Date()) {
+            return undefined;
+        }
+        return _episode;
+    }
+
+    nextEpisodeWithProgress (episode, playback) {
+        var _episode = this.nextEpisode(episode);
+        var _playbackEpisode = playback
+            .filter(
+                v => v['type'] === 'episode' 
+                && v.show.ids.imdb === this.ids.imdb
+                && v.episode.season === _episode.season
+                && v.episode.number === _episode.number
+            )
+        var progress = 0;
+        if (_playbackEpisode.length > 0) {
+            progress = _playbackEpisode[0].progress;
+        }
+
+        return _episode.withProgress(progress);
+    }
+
+    watchNext (state, seasons = this.seasons, playback) {
         var _playback = playback;
 
         try {
@@ -73,11 +105,16 @@ export default class Video {
                 )
                 .sort((a,b) => Date(b.paused_at) - Date(a.paused_at))[0];
             
-            // console.log(_playbackEpisode);
+            var _episode
 
-            var _episode = this.getEpisode(_playbackEpisode.episode.number, _playbackEpisode.episode.season, seasons ?? this.seasons);
+            if (_playbackEpisode.progress > 96) {
+                return this.nextEpisodeWithProgress(_playbackEpisode.episode, _playback);
+            }
+
+             _episode = this.getEpisode(_playbackEpisode.episode.number, _playbackEpisode.episode.season, seasons);
+
             return _episode.withProgress(_playbackEpisode.progress);
-        } catch (e) {console.log(e)}
+        } catch (_) {}
         return undefined;
     }
 
